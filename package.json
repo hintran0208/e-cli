@@ -1,36 +1,73 @@
 {
   "name": "e-cli",
-  "version": "1.0.0",
-  "description": "A powerful command line interface tool",
-  "main": "dist/index.js",
+  "description": "A new CLI generated with oclif",
+  "version": "0.0.0",
+  "author": "Loc Pham",
   "bin": {
-    "e-cli": "./dist/index.js"
+    "e-cli": "./bin/run.js"
   },
-  "type": "module",
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
-    "test": "jest"
-  },
-  "keywords": ["cli", "command-line"],
-  "author": "",
-  "license": "MIT",
+  "bugs": "https://github.com/AI_30Days/e-cli/issues",
   "dependencies": {
-    "commander": "^11.0.0",
-    "inquirer": "^9.2.7",
-    "chalk": "^5.3.0",
-    "ora": "^7.0.1",
-    "figlet": "^1.6.0"
+    "@oclif/core": "^4",
+    "@oclif/plugin-help": "^6",
+    "@oclif/plugin-plugins": "^5"
   },
   "devDependencies": {
-    "@types/node": "^20.4.1",
-    "@types/inquirer": "^9.0.3",
-    "@types/figlet": "^1.5.6",
-    "typescript": "^5.1.6",
-    "ts-node": "^10.9.1",
-    "@types/jest": "^29.5.2",
-    "jest": "^29.6.1",
-    "ts-jest": "^29.1.1"
-  }
+    "@eslint/compat": "^1",
+    "@oclif/prettier-config": "^0.2.1",
+    "@oclif/test": "^4",
+    "@types/chai": "^4",
+    "@types/mocha": "^10",
+    "@types/node": "^18",
+    "chai": "^4",
+    "eslint": "^9",
+    "eslint-config-oclif": "^6",
+    "eslint-config-prettier": "^10",
+    "mocha": "^10",
+    "oclif": "^4",
+    "shx": "^0.3.3",
+    "ts-node": "^10",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "./bin",
+    "./dist",
+    "./oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/AI_30Days/e-cli",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  
+  "oclif": {
+    "bin": "e-cli",
+    "dirname": "e-cli",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-plugins"
+    ],
+    "topicSeparator": " ",
+    "topics": {
+      "hello": {
+        "description": "Say hello to the world and others"
+      }
+    }
+  },
+  "repository": "AI_30Days/e-cli",
+  "scripts": {
+    "build": "shx rm -rf dist && tsc -b",
+    "lint": "eslint",
+    "postpack": "shx rm -f oclif.manifest.json",
+    "posttest": "npm run lint",
+    "prepack": "oclif manifest && oclif readme",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif readme && git add README.md"
+  },
+  "types": "dist/index.d.ts"
 }
