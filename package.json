@@ -10,13 +10,17 @@
   "dependencies": {
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
-    "@oclif/plugin-plugins": "^5"
+    "@oclif/plugin-plugins": "^5",
+    "chalk": "^4.1.2",
+    "figlet": "^1.8.2",
+    "inquirer": "^12.7.0"
   },
   "devDependencies": {
     "@eslint/compat": "^1",
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^4",
     "@types/chai": "^4",
+    "@types/figlet": "^1.7.0",
     "@types/mocha": "^10",
     "@types/node": "^18",
     "chai": "^4",
@@ -35,7 +39,8 @@
   "files": [
     "./bin",
     "./dist",
-    "./oclif.manifest.json"
+    "./oclif.manifest.json",
+    "./scripts"
   ],
   "homepage": "https://github.com/AI_30Days/e-cli",
   "keywords": [
@@ -43,11 +48,11 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
-  
   "oclif": {
     "bin": "e-cli",
     "dirname": "e-cli",
     "commands": "./dist/commands",
+    "default": "welcome",
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins"
@@ -56,6 +61,9 @@
     "topics": {
       "hello": {
         "description": "Say hello to the world and others"
+      },
+      "welcome": {
+        "description": "Welcome command for the CLI"
       }
     }
   },
@@ -67,7 +75,9 @@
     "posttest": "npm run lint",
     "prepack": "oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
-    "version": "oclif readme && git add README.md"
+    "version": "oclif readme && git add README.md",
+    "postinstall": "node scripts/welcome.mjs"
   },
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "type": "commonjs"
 }
