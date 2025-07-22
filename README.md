@@ -1,12 +1,12 @@
-e-cli
-=================
+ECLI - AI CLI Wrapper
+====================
 
-A new CLI generated with oclif
+A CLI wrapper for Claude Code and Gemini CLI - Choose your AI assistant from the command line.
 
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/e-cli.svg)](https://npmjs.org/package/e-cli)
-[![Downloads/week](https://img.shields.io/npm/dw/e-cli.svg)](https://npmjs.org/package/e-cli)
+[![Version](https://img.shields.io/npm/v/ecli.svg)](https://npmjs.org/package/ecli)
+[![Downloads/week](https://img.shields.io/npm/dw/ecli.svg)](https://npmjs.org/package/ecli)
 
 
 <!-- toc -->
@@ -16,82 +16,111 @@ A new CLI generated with oclif
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g e-cli
-$ e-cli COMMAND
+$ npm install -g ecli
+$ ecli COMMAND
 running command...
-$ e-cli (--version)
-e-cli/0.0.0 darwin-x64 node-v23.11.0
-$ e-cli --help [COMMAND]
+$ ecli (--version)
+ecli/0.0.0 darwin-x64 node-v23.11.0
+$ ecli --help [COMMAND]
 USAGE
-  $ e-cli COMMAND
+  $ ecli COMMAND
 ...
 ```
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`e-cli hello PERSON`](#e-cli-hello-person)
-* [`e-cli hello world`](#e-cli-hello-world)
-* [`e-cli help [COMMAND]`](#e-cli-help-command)
-* [`e-cli plugins`](#e-cli-plugins)
-* [`e-cli plugins add PLUGIN`](#e-cli-plugins-add-plugin)
-* [`e-cli plugins:inspect PLUGIN...`](#e-cli-pluginsinspect-plugin)
-* [`e-cli plugins install PLUGIN`](#e-cli-plugins-install-plugin)
-* [`e-cli plugins link PATH`](#e-cli-plugins-link-path)
-* [`e-cli plugins remove [PLUGIN]`](#e-cli-plugins-remove-plugin)
-* [`e-cli plugins reset`](#e-cli-plugins-reset)
-* [`e-cli plugins uninstall [PLUGIN]`](#e-cli-plugins-uninstall-plugin)
-* [`e-cli plugins unlink [PLUGIN]`](#e-cli-plugins-unlink-plugin)
-* [`e-cli plugins update`](#e-cli-plugins-update)
+* [`ecli`](#ecli)
+* [`ecli claude [PROMPT]`](#ecli-claude-prompt)
+* [`ecli gemini [PROMPT]`](#ecli-gemini-prompt)
+* [`ecli help [COMMAND]`](#ecli-help-command)
+* [`ecli plugins`](#ecli-plugins)
+* [`ecli plugins add PLUGIN`](#ecli-plugins-add-plugin)
+* [`ecli plugins:inspect PLUGIN...`](#ecli-pluginsinspect-plugin)
+* [`ecli plugins install PLUGIN`](#ecli-plugins-install-plugin)
+* [`ecli plugins link PATH`](#ecli-plugins-link-path)
+* [`ecli plugins remove [PLUGIN]`](#ecli-plugins-remove-plugin)
+* [`ecli plugins reset`](#ecli-plugins-reset)
+* [`ecli plugins uninstall [PLUGIN]`](#ecli-plugins-uninstall-plugin)
+* [`ecli plugins unlink [PLUGIN]`](#ecli-plugins-unlink-plugin)
+* [`ecli plugins update`](#ecli-plugins-update)
 
-## `e-cli hello PERSON`
+## `ecli`
 
-Say hello
+AI CLI wrapper - Choose your AI assistant
 
 ```
 USAGE
-  $ e-cli hello PERSON -f <value>
+  $ ecli
+
+DESCRIPTION
+  Shows available AI assistants and usage examples
+
+EXAMPLES
+  $ ecli
+  🤖 Welcome to ECLI - AI CLI Wrapper
+  
+  Available AI assistants:
+    claude  - Claude Code CLI wrapper  
+    gemini  - Gemini CLI wrapper
+```
+
+_See code: [src/commands/index.ts](https://github.com/AI_30Days/ecli/blob/v0.0.0/src/commands/index.ts)_
+
+## `ecli claude [PROMPT]`
+
+Execute Claude Code CLI commands
+
+```
+USAGE
+  $ ecli claude [PROMPT] [-v]
 
 ARGUMENTS
-  PERSON  Person to say hello to
+  PROMPT  Prompt to send to Claude Code CLI
 
 FLAGS
-  -f, --from=<value>  (required) Who is saying hello
+  -v, --version  show claude version
 
 DESCRIPTION
-  Say hello
+  Execute Claude Code CLI commands
 
 EXAMPLES
-  $ e-cli hello friend --from oclif
-  hello friend from oclif! (./src/commands/hello/index.ts)
+  $ ecli claude "help me debug this function"
+  $ ecli claude --version
 ```
 
-_See code: [src/commands/hello/index.ts](https://github.com/AI_30Days/e-cli/blob/v0.0.0/src/commands/hello/index.ts)_
+_See code: [src/commands/claude/index.ts](https://github.com/AI_30Days/ecli/blob/v0.0.0/src/commands/claude/index.ts)_
 
-## `e-cli hello world`
+## `ecli gemini [PROMPT]`
 
-Say hello world
+Execute Gemini CLI commands
 
 ```
 USAGE
-  $ e-cli hello world
+  $ ecli gemini [PROMPT] [-v]
+
+ARGUMENTS
+  PROMPT  Prompt to send to Gemini CLI
+
+FLAGS
+  -v, --version  show gemini version
 
 DESCRIPTION
-  Say hello world
+  Execute Gemini CLI commands
 
 EXAMPLES
-  $ e-cli hello world
-  hello world! (./src/commands/hello/world.ts)
+  $ ecli gemini "explain this code"
+  $ ecli gemini --version
 ```
 
-_See code: [src/commands/hello/world.ts](https://github.com/AI_30Days/e-cli/blob/v0.0.0/src/commands/hello/world.ts)_
+_See code: [src/commands/gemini/index.ts](https://github.com/AI_30Days/ecli/blob/v0.0.0/src/commands/gemini/index.ts)_
 
-## `e-cli help [COMMAND]`
+## `ecli help [COMMAND]`
 
-Display help for e-cli.
+Display help for ecli.
 
 ```
 USAGE
-  $ e-cli help [COMMAND...] [-n]
+  $ ecli help [COMMAND...] [-n]
 
 ARGUMENTS
   COMMAND...  Command to show help for.
@@ -100,18 +129,18 @@ FLAGS
   -n, --nested-commands  Include all nested commands in the output.
 
 DESCRIPTION
-  Display help for e-cli.
+  Display help for ecli.
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.31/src/commands/help.ts)_
 
-## `e-cli plugins`
+## `ecli plugins`
 
 List installed plugins.
 
 ```
 USAGE
-  $ e-cli plugins [--json] [--core]
+  $ ecli plugins [--json] [--core]
 
 FLAGS
   --core  Show core plugins.
@@ -123,18 +152,18 @@ DESCRIPTION
   List installed plugins.
 
 EXAMPLES
-  $ e-cli plugins
+  $ ecli plugins
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.44/src/commands/plugins/index.ts)_
 
-## `e-cli plugins add PLUGIN`
+## `ecli plugins add PLUGIN`
 
-Installs a plugin into e-cli.
+Installs a plugin into ecli.
 
 ```
 USAGE
-  $ e-cli plugins add PLUGIN... [--json] [-f] [-h] [-s | -v]
+  $ ecli plugins add PLUGIN... [--json] [-f] [-h] [-s | -v]
 
 ARGUMENTS
   PLUGIN...  Plugin to install.
@@ -149,39 +178,39 @@ GLOBAL FLAGS
   --json  Format output as json.
 
 DESCRIPTION
-  Installs a plugin into e-cli.
+  Installs a plugin into ecli.
 
   Uses npm to install plugins.
 
   Installation of a user-installed plugin will override a core plugin.
 
-  Use the E_CLI_NPM_LOG_LEVEL environment variable to set the npm loglevel.
-  Use the E_CLI_NPM_REGISTRY environment variable to set the npm registry.
+  Use the ECLI_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the ECLI_NPM_REGISTRY environment variable to set the npm registry.
 
 ALIASES
-  $ e-cli plugins add
+  $ ecli plugins add
 
 EXAMPLES
   Install a plugin from npm registry.
 
-    $ e-cli plugins add myplugin
+    $ ecli plugins add myplugin
 
   Install a plugin from a github url.
 
-    $ e-cli plugins add https://github.com/someuser/someplugin
+    $ ecli plugins add https://github.com/someuser/someplugin
 
   Install a plugin from a github slug.
 
-    $ e-cli plugins add someuser/someplugin
+    $ ecli plugins add someuser/someplugin
 ```
 
-## `e-cli plugins:inspect PLUGIN...`
+## `ecli plugins:inspect PLUGIN...`
 
 Displays installation properties of a plugin.
 
 ```
 USAGE
-  $ e-cli plugins inspect PLUGIN...
+  $ ecli plugins inspect PLUGIN...
 
 ARGUMENTS
   PLUGIN...  [default: .] Plugin to inspect.
@@ -197,18 +226,18 @@ DESCRIPTION
   Displays installation properties of a plugin.
 
 EXAMPLES
-  $ e-cli plugins inspect myplugin
+  $ ecli plugins inspect myplugin
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.44/src/commands/plugins/inspect.ts)_
 
-## `e-cli plugins install PLUGIN`
+## `ecli plugins install PLUGIN`
 
-Installs a plugin into e-cli.
+Installs a plugin into ecli.
 
 ```
 USAGE
-  $ e-cli plugins install PLUGIN... [--json] [-f] [-h] [-s | -v]
+  $ ecli plugins install PLUGIN... [--json] [-f] [-h] [-s | -v]
 
 ARGUMENTS
   PLUGIN...  Plugin to install.
@@ -223,41 +252,41 @@ GLOBAL FLAGS
   --json  Format output as json.
 
 DESCRIPTION
-  Installs a plugin into e-cli.
+  Installs a plugin into ecli.
 
   Uses npm to install plugins.
 
   Installation of a user-installed plugin will override a core plugin.
 
-  Use the E_CLI_NPM_LOG_LEVEL environment variable to set the npm loglevel.
-  Use the E_CLI_NPM_REGISTRY environment variable to set the npm registry.
+  Use the ECLI_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the ECLI_NPM_REGISTRY environment variable to set the npm registry.
 
 ALIASES
-  $ e-cli plugins add
+  $ ecli plugins add
 
 EXAMPLES
   Install a plugin from npm registry.
 
-    $ e-cli plugins install myplugin
+    $ ecli plugins install myplugin
 
   Install a plugin from a github url.
 
-    $ e-cli plugins install https://github.com/someuser/someplugin
+    $ ecli plugins install https://github.com/someuser/someplugin
 
   Install a plugin from a github slug.
 
-    $ e-cli plugins install someuser/someplugin
+    $ ecli plugins install someuser/someplugin
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.44/src/commands/plugins/install.ts)_
 
-## `e-cli plugins link PATH`
+## `ecli plugins link PATH`
 
 Links a plugin into the CLI for development.
 
 ```
 USAGE
-  $ e-cli plugins link PATH [-h] [--install] [-v]
+  $ ecli plugins link PATH [-h] [--install] [-v]
 
 ARGUMENTS
   PATH  [default: .] path to plugin
@@ -277,18 +306,18 @@ DESCRIPTION
 
 
 EXAMPLES
-  $ e-cli plugins link myplugin
+  $ ecli plugins link myplugin
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.44/src/commands/plugins/link.ts)_
 
-## `e-cli plugins remove [PLUGIN]`
+## `ecli plugins remove [PLUGIN]`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ e-cli plugins remove [PLUGIN...] [-h] [-v]
+  $ ecli plugins remove [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
   PLUGIN...  plugin to uninstall
@@ -301,20 +330,20 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ e-cli plugins unlink
-  $ e-cli plugins remove
+  $ ecli plugins unlink
+  $ ecli plugins remove
 
 EXAMPLES
-  $ e-cli plugins remove myplugin
+  $ ecli plugins remove myplugin
 ```
 
-## `e-cli plugins reset`
+## `ecli plugins reset`
 
 Remove all user-installed and linked plugins.
 
 ```
 USAGE
-  $ e-cli plugins reset [--hard] [--reinstall]
+  $ ecli plugins reset [--hard] [--reinstall]
 
 FLAGS
   --hard       Delete node_modules and package manager related files in addition to uninstalling plugins.
@@ -323,13 +352,13 @@ FLAGS
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.44/src/commands/plugins/reset.ts)_
 
-## `e-cli plugins uninstall [PLUGIN]`
+## `ecli plugins uninstall [PLUGIN]`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ e-cli plugins uninstall [PLUGIN...] [-h] [-v]
+  $ ecli plugins uninstall [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
   PLUGIN...  plugin to uninstall
@@ -342,22 +371,22 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ e-cli plugins unlink
-  $ e-cli plugins remove
+  $ ecli plugins unlink
+  $ ecli plugins remove
 
 EXAMPLES
-  $ e-cli plugins uninstall myplugin
+  $ ecli plugins uninstall myplugin
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.44/src/commands/plugins/uninstall.ts)_
 
-## `e-cli plugins unlink [PLUGIN]`
+## `ecli plugins unlink [PLUGIN]`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ e-cli plugins unlink [PLUGIN...] [-h] [-v]
+  $ ecli plugins unlink [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
   PLUGIN...  plugin to uninstall
@@ -370,20 +399,20 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ e-cli plugins unlink
-  $ e-cli plugins remove
+  $ ecli plugins unlink
+  $ ecli plugins remove
 
 EXAMPLES
-  $ e-cli plugins unlink myplugin
+  $ ecli plugins unlink myplugin
 ```
 
-## `e-cli plugins update`
+## `ecli plugins update`
 
 Update installed plugins.
 
 ```
 USAGE
-  $ e-cli plugins update [-h] [-v]
+  $ ecli plugins update [-h] [-v]
 
 FLAGS
   -h, --help     Show CLI help.
