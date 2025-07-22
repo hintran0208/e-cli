@@ -6,6 +6,8 @@ const App: React.FC = () => {
   const [input, setInput] = useState("");
   const [showModeSelection, setShowModeSelection] = useState(false);
   const [selectedModeIndex, setSelectedModeIndex] = useState(0);
+  const [showToolSelection, setShowToolSelection] = useState(false);
+  const [selectedToolIndex, setSelectedToolIndex] = useState(0);
 
   useInput((inputChar: string, key: any) => {
     if (key.return) {
@@ -13,11 +15,21 @@ const App: React.FC = () => {
         // Handle mode selection
         if (selectedModeIndex === 0) {
           console.log("Default mode selected");
+          setShowModeSelection(false);
+          setShowToolSelection(true);
         } else if (selectedModeIndex === 1) {
           console.log("Scenario mode selected");
+          setShowModeSelection(false);
+          // For scenario mode, we might handle differently later
         }
-        setShowModeSelection(false);
         setSelectedModeIndex(0);
+        setInput("");
+      } else if (showToolSelection) {
+        // Handle tool selection
+        const tools = ["Claude Code", "Gemini CLI", "CodeX OpenAI"];
+        console.log(`${tools[selectedToolIndex]} selected`);
+        setShowToolSelection(false);
+        setSelectedToolIndex(0);
         setInput("");
       } else {
         // Handle command execution
@@ -39,9 +51,16 @@ const App: React.FC = () => {
       } else if (key.downArrow) {
         setSelectedModeIndex((prev) => prev === 1 ? 0 : 1);
       }
-    } else if (!showModeSelection && (key.backspace || key.delete)) {
+    } else if (showToolSelection && (key.upArrow || key.downArrow)) {
+      // Handle arrow key navigation in tool selection
+      if (key.upArrow) {
+        setSelectedToolIndex((prev) => prev === 0 ? 2 : prev - 1);
+      } else if (key.downArrow) {
+        setSelectedToolIndex((prev) => prev === 2 ? 0 : prev + 1);
+      }
+    } else if (!showModeSelection && !showToolSelection && (key.backspace || key.delete)) {
       setInput((prev) => prev.slice(0, -1));
-    } else if (!showModeSelection && inputChar && !key.ctrl && !key.meta) {
+    } else if (!showModeSelection && !showToolSelection && inputChar && !key.ctrl && !key.meta) {
       setInput((prev) => prev + inputChar);
     }
   });
@@ -55,6 +74,33 @@ const App: React.FC = () => {
  ███████╗           ╚██████╗  ███████╗ ██║ 
  ╚══════╝            ╚═════╝  ╚══════╝ ╚═╝ 
 `;
+
+  if (showToolSelection) {
+    const tools = ["Claude Code", "Gemini CLI", "CodeX OpenAI"];
+    return (
+      <Box flexDirection="column" padding={1}>
+        <Box marginBottom={1}>
+          <Text>{gradient(["#0066ff", "#00ff66"])(title)}</Text>
+        </Box>
+
+        <Box marginBottom={1}>
+          <Text color="whiteBright">Hey Boss! Please choose the best coding tool</Text>
+        </Box>
+        
+        {tools.map((tool, index) => (
+          <Box key={tool}>
+            <Text color={selectedToolIndex === index ? "blue" : "whiteBright"}>
+              {selectedToolIndex === index ? "▶ " : "  "}{tool}
+            </Text>
+          </Box>
+        ))}
+
+        <Box marginTop={2}>
+          <Text color="gray">Use ↑↓ arrows to navigate, Enter to select</Text>
+        </Box>
+      </Box>
+    );
+  }
 
   if (showModeSelection) {
     return (
