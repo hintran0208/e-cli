@@ -27,15 +27,62 @@ export class GeminiService {
 
   static async executeCommand(geminiCommand: GeminiCommand): Promise<ProcessResult> {
     return new Promise((resolve) => {
-      let geminiArgs: string[];
-      
-      if (geminiCommand.type === 'prompt') {
-        geminiArgs = ['gemini', '-p', geminiCommand.content];
-      } else {
-        geminiArgs = ['gemini', ...geminiCommand.content.split(' ')];
-      }
+      // Handle CLI commands properly
+      if (geminiCommand.type === 'cli') {
+        let geminiArgs: string[];
+        
+        // Map CLI commands to proper flags
+        if (geminiCommand.content === 'help') {
+          geminiArgs = ['--help'];
+        } else if (geminiCommand.content === 'version') {
+          geminiArgs = ['--version'];
+        } else {
+          // For other CLI commands, treat them as prompts to the AI model
+          geminiArgs = ['-m', 'gemini-2.5-flash', '-p', `/${geminiCommand.content}`];
+        }
+        
+        const geminiProcess = spawn('npx', ['gemini'].concat(geminiArgs), {
+          stdio: 'pipe',
+          shell: true
+        });
 
-      const geminiProcess = spawn('npx', geminiArgs, {
+        let output = '';
+        let errorOutput = '';
+
+        geminiProcess.stdout?.on('data', (data: any) => {
+          output += data.toString();
+        });
+
+        geminiProcess.stderr?.on('data', (data: any) => {
+          errorOutput += data.toString();
+        });
+
+        geminiProcess.on('close', (code: number | null) => {
+          // Clean the output
+          let cleanOutput = output.trim();
+          cleanOutput = cleanOutput.replace(/^Loaded cached credentials\.\s*\n?/gm, '');
+          cleanOutput = cleanOutput.trim();
+          
+          resolve({
+            success: code === 0 && cleanOutput.length > 0,
+            output: cleanOutput || errorOutput.trim() || `No output received for /${geminiCommand.content}`,
+            error: code !== 0 ? errorOutput : undefined
+          });
+        });
+
+        geminiProcess.on('error', (error: any) => {
+          resolve({
+            success: false,
+            output: `❌ Failed to execute Gemini CLI: ${error.message}`,
+            error: error.message
+          });
+        });
+
+        return;
+      }
+      
+      // For prompts, use -p flag with Flash model
+      const geminiProcess = spawn('npx', ['gemini', '-m', 'gemini-2.5-flash', '-p', geminiCommand.content], {
         stdio: 'pipe',
         shell: true
       });
@@ -43,15 +90,15 @@ export class GeminiService {
       let output = '';
       let errorOutput = '';
 
-      geminiProcess.stdout?.on('data', (data) => {
+      geminiProcess.stdout?.on('data', (data: any) => {
         output += data.toString();
       });
 
-      geminiProcess.stderr?.on('data', (data) => {
+      geminiProcess.stderr?.on('data', (data: any) => {
         errorOutput += data.toString();
       });
 
-      geminiProcess.on('close', (code) => {
+      geminiProcess.on('close', (code: number | null) => {
         if (code === 0) {
           // Clean the output - remove cached credentials and extra whitespace
           let cleanOutput = output.trim();
@@ -78,7 +125,7 @@ export class GeminiService {
         }
       });
 
-      geminiProcess.on('error', (error) => {
+      geminiProcess.on('error', (error: any) => {
         resolve({
           success: false,
           output: `❌ Failed to execute Gemini CLI: ${error.message}\nMake sure @google/gemini-cli is installed`,
