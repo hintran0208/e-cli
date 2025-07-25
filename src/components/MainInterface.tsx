@@ -11,6 +11,7 @@ interface MainInterfaceProps {
   cursorPosition: number;
   isExecuting: boolean;
   loadingDots: number;
+  currentService: 'claude' | 'gemini' | '';
   showResponse: boolean;
   responseText: string;
 }
@@ -21,6 +22,7 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
   cursorPosition,
   isExecuting,
   loadingDots,
+  currentService,
   showResponse,
   responseText
 }) => {
@@ -51,7 +53,7 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
       {!showResponse && (
         <>
           {isExecuting ? (
-            <LoadingIndicator loadingDots={loadingDots} />
+            <LoadingIndicator loadingDots={loadingDots} currentService={currentService} />
           ) : (
             <InputField input={input} cursorPosition={cursorPosition} />
           )}

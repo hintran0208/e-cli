@@ -1,6 +1,7 @@
 import { useInput } from 'ink';
 import { AppState } from '../types/index.js';
 import { GeminiService } from '../services/geminiService.js';
+import { ClaudeService } from '../services/claudeService.js';
 
 interface UseInputHandlerProps {
   state: AppState;
@@ -46,6 +47,11 @@ export const useInputHandler = ({
             showToolSelection: false,
             showGeminiSetup: true
           });
+        } else if (selectedToolName === "Claude Code") {
+          updateState({
+            showToolSelection: false,
+            showClaudeSetup: true
+          });
         } else {
           updateState({ showToolSelection: false });
           completeExecution(`${selectedToolName} integration coming soon!`);
@@ -67,6 +73,21 @@ export const useInputHandler = ({
           completeExecution("❌ Please enter a valid API key");
           resetInput();
         }
+      } else if (state.showClaudeSetup) {
+        // Handle Claude setup - save API key
+        if (state.claudeApiKeyInput.trim()) {
+          // Set the API key as environment variable
+          process.env.ANTHROPIC_API_KEY = state.claudeApiKeyInput.trim();
+          completeExecution("✅ API key saved successfully!\nYou can now use: ecli claude [your prompt] or the interactive mode");
+          updateState({
+            showClaudeSetup: false,
+            claudeApiKeyInput: ""
+          });
+          resetInput();
+        } else {
+          completeExecution("❌ Please enter a valid API key");
+          resetInput();
+        }
       } else {
         // Handle command execution
         const currentInput = state.input.trim();
@@ -74,10 +95,29 @@ export const useInputHandler = ({
           updateState({ showModeSelection: true });
           resetInput();
           return;
+        } else if (currentInput.startsWith("ecli claude")) {
+          const claudeCommand = currentInput.replace("ecli claude", "").trim();
+          if (claudeCommand) {
+            updateState({ currentService: 'claude' });
+            startExecution();
+            
+            try {
+              const parsedCommand = ClaudeService.parseCommand(claudeCommand);
+              const result = await ClaudeService.executeCommand(parsedCommand);
+              completeExecution(result.output);
+            } catch (error) {
+              completeExecution(`❌ Unexpected error: ${error}`);
+            }
+          } else {
+            completeExecution('Claude Code ready - Usage:\n• ecli claude "your question here" - for prompts\n• ecli claude /help - for CLI commands');
+            resetInput();
+          }
+          return;
         } else if (currentInput.startsWith("ecli gemini")) {
           if (state.selectedTool === "Gemini CLI") {
             const geminiCommand = currentInput.replace("ecli gemini", "").trim();
             if (geminiCommand) {
+              updateState({ currentService: 'gemini' });
               startExecution();
               
               try {
@@ -118,11 +158,15 @@ export const useInputHandler = ({
       updateState({ apiKeyInput: state.apiKeyInput.slice(0, -1) });
     } else if (state.showGeminiSetup && inputChar && !key.ctrl && !key.meta) {
       updateState({ apiKeyInput: state.apiKeyInput + inputChar });
-    } else if (!state.showModeSelection && !state.showToolSelection && !state.showGeminiSetup && !state.isExecuting && key.leftArrow) {
+    } else if (state.showClaudeSetup && (key.backspace || key.delete)) {
+      updateState({ claudeApiKeyInput: state.claudeApiKeyInput.slice(0, -1) });
+    } else if (state.showClaudeSetup && inputChar && !key.ctrl && !key.meta) {
+      updateState({ claudeApiKeyInput: state.claudeApiKeyInput + inputChar });
+    } else if (!state.showModeSelection && !state.showToolSelection && !state.showGeminiSetup && !state.showClaudeSetup && !state.isExecuting && key.leftArrow) {
       updateState({ cursorPosition: Math.max(0, state.cursorPosition - 1) });
-    } else if (!state.showModeSelection && !state.showToolSelection && !state.showGeminiSetup && !state.isExecuting && key.rightArrow) {
+    } else if (!state.showModeSelection && !state.showToolSelection && !state.showGeminiSetup && !state.showClaudeSetup && !state.isExecuting && key.rightArrow) {
       updateState({ cursorPosition: Math.min(state.input.length, state.cursorPosition + 1) });
-    } else if (!state.showModeSelection && !state.showToolSelection && !state.showGeminiSetup && !state.isExecuting && (key.backspace || key.delete)) {
+    } else if (!state.showModeSelection && !state.showToolSelection && !state.showGeminiSetup && !state.showClaudeSetup && !state.isExecuting && (key.backspace || key.delete)) {
       if (state.cursorPosition > 0) {
         const newInput = state.input.slice(0, state.cursorPosition - 1) + state.input.slice(state.cursorPosition);
         updateState({
@@ -130,7 +174,7 @@ export const useInputHandler = ({
           cursorPosition: state.cursorPosition - 1
         });
       }
-    } else if (!state.showModeSelection && !state.showToolSelection && !state.showGeminiSetup && !state.isExecuting && inputChar && !key.ctrl && !key.meta) {
+    } else if (!state.showModeSelection && !state.showToolSelection && !state.showGeminiSetup && !state.showClaudeSetup && !state.isExecuting && inputChar && !key.ctrl && !key.meta) {
       const newInput = state.input.slice(0, state.cursorPosition) + inputChar + state.input.slice(state.cursorPosition);
       updateState({
         input: newInput,

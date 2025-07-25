@@ -1,7 +1,7 @@
 {
   "name": "ecli",
   "version": "1.0.0",
-  "description": "E-CLI - An AI CLI wrapper with unified access to Claude and Gemini",
+  "description": "E-CLI - An AI CLI wrapper with unified access to Claude Code and Gemini CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -23,6 +23,7 @@
   "author": "Loc Pham",
   "license": "MIT",
   "dependencies": {
+    "@anthropic-ai/claude-code": "^1.0.59",
     "@google/gemini-cli": "^0.1.13",
     "gradient-string": "^2.0.2",
     "ink": "^5.0.1",

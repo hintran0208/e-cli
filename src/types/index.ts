@@ -5,10 +5,13 @@ export interface AppState {
   showToolSelection: boolean;
   selectedToolIndex: number;
   showGeminiSetup: boolean;
+  showClaudeSetup: boolean;
   selectedTool: string;
   apiKeyInput: string;
+  claudeApiKeyInput: string;
   cursorPosition: number;
   isExecuting: boolean;
+  currentService: 'claude' | 'gemini' | '';
   responseText: string;
   showResponse: boolean;
   loadingDots: number;

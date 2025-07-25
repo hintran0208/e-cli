@@ -8,8 +8,27 @@ import App from './App.js';
 const args = process.argv.slice(2);
 const command = args[0];
 
-// Handle gemini subcommand - make it work exactly like the real gemini command
-if (command === 'gemini') {
+// Handle claude subcommand - make it work exactly like the @anthropic-ai/claude-code package
+if (command === 'claude') {
+  // Get all arguments after 'claude'
+  const claudeArgs = args.slice(1);
+  
+  // Launch @anthropic-ai/claude-code with all the arguments - exactly like calling claude directly
+  const claudeProcess = spawn('npx', ['@anthropic-ai/claude-code'].concat(claudeArgs), {
+    stdio: 'inherit',
+    shell: true
+  });
+  
+  claudeProcess.on('close', (exitCode) => {
+    process.exit(exitCode || 0);
+  });
+  
+  claudeProcess.on('error', (error) => {
+    console.error(`Error spawning claude process: ${error.message}`);
+    console.error('Make sure @anthropic-ai/claude-code is installed');
+    process.exit(1);
+  });
+} else if (command === 'gemini') {
   // Check if gemini CLI is available first
   const checkGemini = spawn('which', ['gemini'], { shell: true });
   

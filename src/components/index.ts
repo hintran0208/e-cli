@@ -5,4 +5,5 @@ export { ResponseDisplay } from './ResponseDisplay.js';
 export { ModeSelection } from './ModeSelection.js';
 export { ToolSelection } from './ToolSelection.js';
 export { GeminiSetup } from './GeminiSetup.js';
+export { ClaudeSetup } from './ClaudeSetup.js';
 export { MainInterface } from './MainInterface.js';

@@ -1,5 +1,5 @@
 import React from "react";
-import { ModeSelection, ToolSelection, GeminiSetup, MainInterface } from "./components/index.js";
+import { ModeSelection, ToolSelection, GeminiSetup, ClaudeSetup, MainInterface } from "./components/index.js";
 import { useAppState } from "./hooks/useAppState.js";
 import { useInputHandler } from "./hooks/useInputHandler.js";
 
@@ -29,6 +29,10 @@ const App: React.FC = () => {
     return <GeminiSetup title={title} apiKeyInput={state.apiKeyInput} />;
   }
 
+  if (state.showClaudeSetup) {
+    return <ClaudeSetup title={title} claudeApiKeyInput={state.claudeApiKeyInput} />;
+  }
+
   if (state.showToolSelection) {
     return <ToolSelection title={title} selectedToolIndex={state.selectedToolIndex} />;
   }
@@ -44,6 +48,7 @@ const App: React.FC = () => {
       cursorPosition={state.cursorPosition}
       isExecuting={state.isExecuting}
       loadingDots={state.loadingDots}
+      currentService={state.currentService}
       showResponse={state.showResponse}
       responseText={state.responseText}
     />
