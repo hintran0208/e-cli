@@ -15,6 +15,8 @@ export interface AppState {
   responseText: string;
   showResponse: boolean;
   loadingDots: number;
+  isStreaming: boolean;
+  streamingText: string;
 }
 
 export interface GeminiCommand {

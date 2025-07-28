@@ -14,6 +14,8 @@ interface MainInterfaceProps {
   currentService: 'claude' | 'gemini' | '';
   showResponse: boolean;
   responseText: string;
+  isStreaming: boolean;
+  streamingText: string;
 }
 
 export const MainInterface: React.FC<MainInterfaceProps> = ({
@@ -24,7 +26,9 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
   loadingDots,
   currentService,
   showResponse,
-  responseText
+  responseText,
+  isStreaming,
+  streamingText
 }) => {
   return (
     <Box flexDirection="column" padding={1}>
@@ -53,7 +57,14 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
       {!showResponse && (
         <>
           {isExecuting ? (
-            <LoadingIndicator loadingDots={loadingDots} currentService={currentService} />
+            <>
+              <LoadingIndicator loadingDots={loadingDots} currentService={currentService} />
+              {isStreaming && streamingText && (
+                <Box marginTop={1} marginBottom={1}>
+                  <ResponseDisplay responseText={streamingText} />
+                </Box>
+              )}
+            </>
           ) : (
             <InputField input={input} cursorPosition={cursorPosition} />
           )}
@@ -62,7 +73,7 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
 
       {showResponse && (
         <>
-          <ResponseDisplay responseText={responseText} />
+          <ResponseDisplay responseText={responseText || streamingText} />
           <InputField input={input} cursorPosition={cursorPosition} />
         </>
       )}

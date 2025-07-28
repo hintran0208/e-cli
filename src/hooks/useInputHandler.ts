@@ -98,14 +98,26 @@ export const useInputHandler = ({
         } else if (currentInput.startsWith("ecli claude")) {
           const claudeCommand = currentInput.replace("ecli claude", "").trim();
           if (claudeCommand) {
-            updateState({ currentService: 'claude' });
+            updateState({ 
+              currentService: 'claude',
+              isStreaming: true,
+              streamingText: ''
+            });
             startExecution();
             
             try {
               const parsedCommand = ClaudeService.parseCommand(claudeCommand);
-              const result = await ClaudeService.executeCommand(parsedCommand);
+              const result = await ClaudeService.executeCommandWithStreaming(
+                parsedCommand,
+                (streamText) => {
+                  // Update streaming text in real-time
+                  updateState({ streamingText: streamText });
+                }
+              );
+              updateState({ isStreaming: false });
               completeExecution(result.output);
             } catch (error) {
+              updateState({ isStreaming: false });
               completeExecution(`❌ Unexpected error: ${error}`);
             }
           } else {

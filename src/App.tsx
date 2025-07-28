@@ -51,6 +51,8 @@ const App: React.FC = () => {
       currentService={state.currentService}
       showResponse={state.showResponse}
       responseText={state.responseText}
+      isStreaming={state.isStreaming}
+      streamingText={state.streamingText}
     />
   );
 };

@@ -18,6 +18,8 @@ const initialState: AppState = {
   responseText: '',
   showResponse: false,
   loadingDots: 0,
+  isStreaming: false,
+  streamingText: '',
 };
 
 export const useAppState = () => {
