@@ -12,13 +12,10 @@ export const CommandDropdown: React.FC<CommandDropdownProps> = ({
   selectedCommandIndex
 }) => {
   return (
-    <Box flexDirection="column" marginTop={1}>
+    <Box flexDirection="column">
       {commands.map((command, index) => (
         <Box key={command.name}>
-          <Text 
-            color={index === selectedCommandIndex ? "black" : "white"}
-            backgroundColor={index === selectedCommandIndex ? "cyan" : undefined}
-          >
+          <Text color={index === selectedCommandIndex ? "blue" : "white"}>
             {command.name.padEnd(20)} {command.description}
           </Text>
         </Box>

@@ -74,7 +74,15 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
               )}
             </>
           ) : (
-            <InputField input={input} cursorPosition={cursorPosition} />
+            <>
+              <InputField input={input} cursorPosition={cursorPosition} />
+              {showCommandDropdown && (
+                <CommandDropdown 
+                  commands={availableCommands}
+                  selectedCommandIndex={selectedCommandIndex}
+                />
+              )}
+            </>
           )}
         </>
       )}
@@ -83,14 +91,13 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
         <>
           <ResponseDisplay responseText={responseText || streamingText} />
           <InputField input={input} cursorPosition={cursorPosition} />
+          {showCommandDropdown && (
+            <CommandDropdown 
+              commands={availableCommands}
+              selectedCommandIndex={selectedCommandIndex}
+            />
+          )}
         </>
-      )}
-
-      {showCommandDropdown && (
-        <CommandDropdown 
-          commands={availableCommands}
-          selectedCommandIndex={selectedCommandIndex}
-        />
       )}
     </Box>
   );
