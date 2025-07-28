@@ -4,6 +4,8 @@ import { Header } from './Header.js';
 import { InputField } from './InputField.js';
 import { LoadingIndicator } from './LoadingIndicator.js';
 import { ResponseDisplay } from './ResponseDisplay.js';
+import { CommandDropdown } from './CommandDropdown.js';
+import { Command } from '../types/index.js';
 
 interface MainInterfaceProps {
   title: string;
@@ -16,6 +18,9 @@ interface MainInterfaceProps {
   responseText: string;
   isStreaming: boolean;
   streamingText: string;
+  showCommandDropdown: boolean;
+  selectedCommandIndex: number;
+  availableCommands: Command[];
 }
 
 export const MainInterface: React.FC<MainInterfaceProps> = ({
@@ -28,7 +33,10 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
   showResponse,
   responseText,
   isStreaming,
-  streamingText
+  streamingText,
+  showCommandDropdown,
+  selectedCommandIndex,
+  availableCommands
 }) => {
   return (
     <Box flexDirection="column" padding={1}>
@@ -76,6 +84,13 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
           <ResponseDisplay responseText={responseText || streamingText} />
           <InputField input={input} cursorPosition={cursorPosition} />
         </>
+      )}
+
+      {showCommandDropdown && (
+        <CommandDropdown 
+          commands={availableCommands}
+          selectedCommandIndex={selectedCommandIndex}
+        />
       )}
     </Box>
   );

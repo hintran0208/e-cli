@@ -17,6 +17,16 @@ export interface AppState {
   loadingDots: number;
   isStreaming: boolean;
   streamingText: string;
+  showCommandDropdown: boolean;
+  selectedCommandIndex: number;
+  isClaudeAuthenticated: boolean;
+  isGeminiAuthenticated: boolean;
+}
+
+export interface Command {
+  name: string;
+  description: string;
+  action: string;
 }
 
 export interface GeminiCommand {

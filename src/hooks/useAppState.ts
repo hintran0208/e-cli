@@ -20,6 +20,10 @@ const initialState: AppState = {
   loadingDots: 0,
   isStreaming: false,
   streamingText: '',
+  showCommandDropdown: false,
+  selectedCommandIndex: 0,
+  isClaudeAuthenticated: !!process.env.ANTHROPIC_API_KEY,
+  isGeminiAuthenticated: !!process.env.GEMINI_API_KEY,
 };
 
 export const useAppState = () => {

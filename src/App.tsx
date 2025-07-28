@@ -2,6 +2,7 @@ import React from "react";
 import { ModeSelection, ToolSelection, GeminiSetup, ClaudeSetup, MainInterface } from "./components/index.js";
 import { useAppState } from "./hooks/useAppState.js";
 import { useInputHandler } from "./hooks/useInputHandler.js";
+import { availableCommands } from "./config/commands.js";
 
 const App: React.FC = () => {
   const { state, updateState, resetInput, startExecution, completeExecution } = useAppState();
@@ -53,6 +54,9 @@ const App: React.FC = () => {
       responseText={state.responseText}
       isStreaming={state.isStreaming}
       streamingText={state.streamingText}
+      showCommandDropdown={state.showCommandDropdown}
+      selectedCommandIndex={state.selectedCommandIndex}
+      availableCommands={availableCommands}
     />
   );
 };
