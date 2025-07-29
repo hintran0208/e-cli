@@ -3,6 +3,7 @@ import { AppState } from '../types/index.js';
 import { GeminiService } from '../services/geminiService.js';
 import { ClaudeService } from '../services/claudeService.js';
 import { availableCommands } from '../config/commands.js';
+import { StorageService } from '../services/storageService.js';
 
 interface UseInputHandlerProps {
   state: AppState;
@@ -62,8 +63,8 @@ export const useInputHandler = ({
       } else if (state.showGeminiSetup) {
         // Handle Gemini setup - save API key
         if (state.apiKeyInput.trim()) {
-          // Set the API key as environment variable
-          process.env.GEMINI_API_KEY = state.apiKeyInput.trim();
+          // Save the API key persistently
+          StorageService.saveGeminiApiKey(state.apiKeyInput.trim());
           updateState({
             showGeminiSetup: false,
             apiKeyInput: "",
@@ -78,8 +79,8 @@ export const useInputHandler = ({
       } else if (state.showClaudeSetup) {
         // Handle Claude setup - save API key
         if (state.claudeApiKeyInput.trim()) {
-          // Set the API key as environment variable
-          process.env.ANTHROPIC_API_KEY = state.claudeApiKeyInput.trim();
+          // Save the API key persistently
+          StorageService.saveAnthropicApiKey(state.claudeApiKeyInput.trim());
           updateState({
             showClaudeSetup: false,
             claudeApiKeyInput: "",
@@ -103,8 +104,7 @@ export const useInputHandler = ({
         
         if (selectedCommand.action === 'logout') {
           // Handle logout
-          process.env.ANTHROPIC_API_KEY = '';
-          process.env.GEMINI_API_KEY = '';
+          StorageService.logout();
           updateState({
             isClaudeAuthenticated: false,
             isGeminiAuthenticated: false,
@@ -139,8 +139,7 @@ Usage:
           if (matchedCommand) {
             if (matchedCommand.action === 'logout') {
               // Handle logout
-              process.env.ANTHROPIC_API_KEY = '';
-              process.env.GEMINI_API_KEY = '';
+              StorageService.logout();
               updateState({
                 isClaudeAuthenticated: false,
                 isGeminiAuthenticated: false,

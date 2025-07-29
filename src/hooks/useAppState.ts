@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import { AppState } from '../types/index.js';
+import { StorageService } from '../services/storageService.js';
+
+// Load credentials on app start
+const authState = StorageService.loadAndSetEnvironmentVariables();
 
 const initialState: AppState = {
   input: '',
@@ -22,8 +26,8 @@ const initialState: AppState = {
   streamingText: '',
   showCommandDropdown: false,
   selectedCommandIndex: 0,
-  isClaudeAuthenticated: !!process.env.ANTHROPIC_API_KEY,
-  isGeminiAuthenticated: !!process.env.GEMINI_API_KEY,
+  isClaudeAuthenticated: authState.isClaudeAuthenticated,
+  isGeminiAuthenticated: authState.isGeminiAuthenticated,
 };
 
 export const useAppState = () => {
