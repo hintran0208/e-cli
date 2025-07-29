@@ -31,7 +31,7 @@ export const useInputHandler = ({
     if (state.isCodexAuthenticated) authenticatedProviders.push('codex');
 
     if (authenticatedProviders.length === 0) {
-      completeExecution("❌ No AI provider configured. Please run /setup first.");
+      completeExecution("🚀 Welcome to E-CLI!\n\n❌ No AI provider configured yet.\n\n📝 Quick Setup:\n• Type /setup to choose and configure an AI provider\n• Available options: Claude Code, Gemini CLI, or OpenAI Codex\n• After setup, you can use: \"your question here\"\n\n💡 Need help? Type /help for more information");
     } else if (authenticatedProviders.length === 1) {
       // Only one provider configured
       const provider = authenticatedProviders[0] as 'claude' | 'gemini' | 'codex';
@@ -130,7 +130,7 @@ export const useInputHandler = ({
             apiKeyInput: "",
             isGeminiAuthenticated: true
           });
-          completeExecution("✅ API key saved successfully!\nYou can now use: ecli [your prompt] (defaults to Gemini) or ecli gemini [your prompt]");
+          completeExecution("✅ Gemini CLI configured successfully!\n\n🎉 You're all set! Try these:\n• \"Write a hello world program\"\n• ecli gemini \"Explain machine learning\"\n• /help for more options");
           resetInput();
         } else {
           completeExecution("❌ Please enter a valid API key");
@@ -146,7 +146,7 @@ export const useInputHandler = ({
             claudeApiKeyInput: "",
             isClaudeAuthenticated: true
           });
-          completeExecution("✅ API key saved successfully!\nYou can now use: ecli [your prompt] (defaults to Claude) or ecli claude [your prompt]");
+          completeExecution("✅ Claude Code configured successfully!\n\n🎉 You're all set! Try these:\n• \"Write a hello world program\"\n• ecli claude \"Explain this code\"\n• /help for more options");
           resetInput();
         } else {
           completeExecution("❌ Please enter a valid API key");
@@ -162,7 +162,7 @@ export const useInputHandler = ({
             codexApiKeyInput: "",
             isCodexAuthenticated: true
           });
-          completeExecution("✅ API key saved successfully!\nYou can now use: ecli [your prompt] (defaults to Codex) or ecli codex [your prompt]");
+          completeExecution("✅ OpenAI Codex configured successfully!\n\n🎉 You're all set! Try these:\n• \"Write a hello world program\"\n• ecli codex \"Debug this JavaScript error\"\n• /help for more options");
           resetInput();
         } else {
           completeExecution("❌ Please enter a valid API key");
@@ -194,15 +194,26 @@ export const useInputHandler = ({
           // Handle model selection
           handleModelCommand();
         } else if (selectedCommand.action === 'help') {
-          completeExecution(`Available Commands:
+          completeExecution(`🚀 E-CLI Help - Unified AI Assistant
+
+📋 Available Commands:
 ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n')}
 
-Usage:
+🎯 Quick Start:
+• Type /setup to configure AI providers (Claude, Gemini, or Codex)
+• Use quotes for AI prompts: "your question here"
+• Use /model to switch between different AI models
+
+⌨️  Navigation:
 • Type "/" to see available commands
 • Use ↑↓ arrows to navigate, Enter to select
-• Type "/setup" to initialize configuration and switch modes
-• After setup: Type your prompt directly or "ecli [prompt]"
-• Or specify: "ecli claude [prompt]" or "ecli gemini [prompt]"`);
+• Commands stay in the CLI - no more exits!
+
+🤖 Usage Examples:
+• "Write a Python function to sort a list"
+• ecli claude "Explain this code"
+• ecli gemini "What is machine learning?"
+• ecli codex "Debug this JavaScript error"`);
         } else {
           completeExecution(`Command "${selectedCommand.name}" - ${selectedCommand.description}\n(Implementation coming soon)`);
         }
@@ -233,15 +244,26 @@ Usage:
               // Handle model selection
               handleModelCommand();
             } else if (matchedCommand.action === 'help') {
-              completeExecution(`Available Commands:
+              completeExecution(`🚀 E-CLI Help - Unified AI Assistant
+
+📋 Available Commands:
 ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n')}
 
-Usage:
+🎯 Quick Start:
+• Type /setup to configure AI providers (Claude, Gemini, or Codex)
+• Use quotes for AI prompts: "your question here"
+• Use /model to switch between different AI models
+
+⌨️  Navigation:
 • Type "/" to see available commands
 • Use ↑↓ arrows to navigate, Enter to select
-• Type "/setup" to initialize configuration and switch modes
-• After setup: Type your prompt directly or "ecli [prompt]"
-• Or specify: "ecli claude [prompt]" or "ecli gemini [prompt]"`);
+• Commands stay in the CLI - no more exits!
+
+🤖 Usage Examples:
+• "Write a Python function to sort a list"
+• ecli claude "Explain this code"
+• ecli gemini "What is machine learning?"
+• ecli codex "Debug this JavaScript error"`);
             } else {
               completeExecution(`Command "${matchedCommand.name}" - ${matchedCommand.description}\n(Implementation coming soon)`);
             }
@@ -284,7 +306,7 @@ Usage:
             if (!state.isClaudeAuthenticated) {
               updateState({ showClaudeSetup: true });
             } else {
-              completeExecution('Claude Code ready - Usage:\n• ecli "your question here" - for prompts (defaults to Claude)\n• ecli claude "your question here" - explicit Claude usage\n• ecli claude /help - for CLI commands');
+              completeExecution('🧠 Claude Code is ready!\n\n✨ Try these commands:\n• "your question here" - Ask Claude anything\n• ecli claude "your question here" - Explicit Claude usage\n• /help - See all available options');
             }
             resetInput();
           }
@@ -304,7 +326,7 @@ Usage:
                 completeExecution(`❌ Unexpected error: ${error}`);
               }
             } else {
-              completeExecution('Gemini CLI ready - Usage:\n• ecli "your question here" - for prompts (defaults to Gemini)\n• ecli gemini "your question here" - explicit Gemini usage\n• ecli gemini /help - for CLI commands');
+              completeExecution('🤖 Gemini CLI is ready!\n\n✨ Try these commands:\n• "your question here" - Ask Gemini anything\n• ecli gemini "your question here" - Explicit Gemini usage\n• /help - See all available options');
               resetInput();
             }
           } else {
@@ -336,7 +358,7 @@ Usage:
             if (!state.isCodexAuthenticated) {
               updateState({ showCodexSetup: true });
             } else {
-              completeExecution('Codex ready - Usage:\n• ecli "your question here" - for prompts (defaults to Codex)\n• ecli codex "your question here" - explicit Codex usage\n• ecli codex /help - for CLI commands');
+              completeExecution('⚡ OpenAI Codex is ready!\n\n✨ Try these commands:\n• "your question here" - Ask Codex anything\n• ecli codex "your question here" - Explicit Codex usage\n• /help - See all available options');
             }
             resetInput();
           }
@@ -441,8 +463,8 @@ Usage:
                 }
               }
             } else {
-              // No provider configured
-              completeExecution("❌ No AI provider configured. Please run /setup first.");
+              // No provider configured  
+              completeExecution("🚀 Welcome to E-CLI!\n\n❌ No AI provider configured yet.\n\n📝 Quick Setup:\n• Type /setup to choose and configure an AI provider\n• Available options: Claude Code, Gemini CLI, or OpenAI Codex\n• After setup, you can use: ecli \"your question here\"\n\n💡 Need help? Type /help for more information");
             }
           } else {
             completeExecution("Usage: ecli \"your prompt here\"");
@@ -549,14 +571,15 @@ Usage:
               }
             } else {
               // No provider configured
-              completeExecution("❌ No AI provider configured. Please run /setup first.");
+              completeExecution("🚀 Welcome to E-CLI!\n\n❌ No AI provider configured yet.\n\n📝 Quick Setup:\n• Type /setup to choose and configure an AI provider\n• Available options: Claude Code, Gemini CLI, or OpenAI Codex\n• After setup, you can use: \"your question here\"\n\n💡 Need help? Type /help for more information");
             }
             resetInput();
             return;
           }
         }
-        console.log(`Executing: ${currentInput}`);
-        process.exit(0);
+        // Unknown command - show help instead of exiting
+        completeExecution(`❓ Unknown command: "${currentInput}"\n\nAvailable options:\n• Type /setup to configure AI providers\n• Type /help for more information\n• Use quotes for prompts: "your question here"`);
+        resetInput();
       }
     } else if (state.showModeSelection && (key.upArrow || key.downArrow)) {
       // Handle arrow key navigation in mode selection
