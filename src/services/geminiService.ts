@@ -1,7 +1,14 @@
 import { spawn } from 'child_process';
 import { GeminiCommand, ProcessResult } from '../types/index.js';
+import { StorageService } from './storageService.js';
+import { getDefaultModel } from '../config/models.js';
 
 export class GeminiService {
+  static getSelectedModel(): string {
+    const models = StorageService.getSelectedModels();
+    return models.gemini || getDefaultModel('gemini');
+  }
+
   static parseCommand(command: string): GeminiCommand {
     const isQuotedPrompt = (command.startsWith('"') && command.endsWith('"')) || 
                           (command.startsWith("'") && command.endsWith("'"));
@@ -38,7 +45,7 @@ export class GeminiService {
           geminiArgs = ['--version'];
         } else {
           // For other CLI commands, treat them as prompts to the AI model
-          geminiArgs = ['-m', 'gemini-2.5-flash', '-p', `/${geminiCommand.content}`];
+          geminiArgs = ['-m', this.getSelectedModel(), '-p', `/${geminiCommand.content}`];
         }
         
         const geminiProcess = spawn('npx', ['gemini'].concat(geminiArgs), {
@@ -81,8 +88,8 @@ export class GeminiService {
         return;
       }
       
-      // For prompts, use -p flag with Flash model
-      const geminiProcess = spawn('npx', ['gemini', '-m', 'gemini-2.5-flash', '-p', geminiCommand.content], {
+      // For prompts, use -p flag with selected model
+      const geminiProcess = spawn('npx', ['gemini', '-m', this.getSelectedModel(), '-p', geminiCommand.content], {
         stdio: 'pipe',
         shell: true
       });

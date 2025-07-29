@@ -28,6 +28,10 @@ const initialState: AppState = {
   selectedCommandIndex: 0,
   isClaudeAuthenticated: authState.isClaudeAuthenticated,
   isGeminiAuthenticated: authState.isGeminiAuthenticated,
+  showModelSelection: false,
+  selectedModelIndex: 0,
+  availableModels: [],
+  modelProvider: '',
 };
 
 export const useAppState = () => {

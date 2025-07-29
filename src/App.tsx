@@ -1,5 +1,5 @@
 import React from "react";
-import { ModeSelection, ToolSelection, GeminiSetup, ClaudeSetup, MainInterface } from "./components/index.js";
+import { ModeSelection, ToolSelection, GeminiSetup, ClaudeSetup, MainInterface, ModelSelection } from "./components/index.js";
 import { useAppState } from "./hooks/useAppState.js";
 import { useInputHandler } from "./hooks/useInputHandler.js";
 import { availableCommands } from "./config/commands.js";
@@ -32,6 +32,17 @@ const App: React.FC = () => {
 
   if (state.showClaudeSetup) {
     return <ClaudeSetup title={title} claudeApiKeyInput={state.claudeApiKeyInput} />;
+  }
+
+  if (state.showModelSelection) {
+    return (
+      <ModelSelection 
+        title={title} 
+        availableModels={state.availableModels}
+        selectedModelIndex={state.selectedModelIndex}
+        provider={state.modelProvider as 'claude' | 'gemini'}
+      />
+    );
   }
 
   if (state.showToolSelection) {

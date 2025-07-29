@@ -1,5 +1,7 @@
 import { query } from '@anthropic-ai/claude-code';
 import { ProcessResult } from '../types/index.js';
+import { StorageService } from './storageService.js';
+import { getDefaultModel } from '../config/models.js';
 
 export interface ClaudeCommand {
   type: 'prompt' | 'cli';
@@ -7,6 +9,11 @@ export interface ClaudeCommand {
 }
 
 export class ClaudeService {
+  static getSelectedModel(): string {
+    const models = StorageService.getSelectedModels();
+    return models.claude || getDefaultModel('claude');
+  }
+
   static parseCommand(command: string): ClaudeCommand {
     const isQuotedPrompt = (command.startsWith('"') && command.endsWith('"')) || 
                           (command.startsWith("'") && command.endsWith("'"));
@@ -71,7 +78,10 @@ export class ClaudeService {
       
       for await (const message of query({
         prompt: claudeCommand.content,
-        options: { maxTurns: 10 }
+        options: { 
+          maxTurns: 10,
+          model: this.getSelectedModel()
+        }
       })) {
         messages.push(message);
         
@@ -161,7 +171,10 @@ export class ClaudeService {
       
       for await (const message of query({
         prompt: claudeCommand.content,
-        options: { maxTurns: 10 }
+        options: { 
+          maxTurns: 10,
+          model: this.getSelectedModel()
+        }
       })) {
         console.log('Received message type:', message.type);
         console.log('Full message:', JSON.stringify(message, null, 2));

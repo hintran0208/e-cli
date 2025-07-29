@@ -5,6 +5,8 @@ import { spawn } from 'child_process';
 import * as pty from 'node-pty';
 import App from './App.js';
 import { StorageService } from './services/storageService.js';
+import { GeminiService } from './services/geminiService.js';
+import { ClaudeService } from './services/claudeService.js';
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -18,7 +20,8 @@ if (command === 'claude') {
   const claudeArgs = args.slice(1);
   
   // Launch @anthropic-ai/claude-code with all the arguments - exactly like calling claude directly
-  const claudeProcess = spawn('npx', ['@anthropic-ai/claude-code'].concat(claudeArgs), {
+  const claudeArgs2 = ['--model', ClaudeService.getSelectedModel()].concat(claudeArgs);
+  const claudeProcess = spawn('npx', ['@anthropic-ai/claude-code'].concat(claudeArgs2), {
     stdio: 'inherit',
     shell: true
   });
@@ -50,7 +53,7 @@ if (command === 'claude') {
       console.log('🔍 Launching Gemini CLI to show help...\n');
       
       // Use PTY to create a proper pseudo-terminal for Gemini CLI
-      const ptyProcess = pty.spawn('gemini', ['-m', 'gemini-2.5-flash'], {
+      const ptyProcess = pty.spawn('gemini', ['-m', GeminiService.getSelectedModel()], {
         name: 'xterm-color',
         cols: 80,
         rows: 30,
@@ -120,7 +123,7 @@ if (command === 'claude') {
         if (!helpShown) {
           console.log('\n❌ Could not retrieve help automatically.');
           console.log('\nTo see Gemini CLI help manually:');
-          console.log('1. Run: gemini -m gemini-2.5-flash');
+          console.log(`1. Run: gemini -m ${GeminiService.getSelectedModel()}`);
           console.log('2. Wait for interface to load');
           console.log('3. Type: /help');
         }
@@ -131,7 +134,7 @@ if (command === 'claude') {
       setTimeout(() => {
         if (!helpShown) {
           console.log('\n⏱️  Timeout. Try running manually:');
-          console.log('1. gemini -m gemini-2.5-flash');
+          console.log(`1. gemini -m ${GeminiService.getSelectedModel()}`);
           console.log('2. Type: /help');
           ptyProcess.kill();
         }
@@ -140,8 +143,8 @@ if (command === 'claude') {
       return;
     }
     
-    // Add Flash model by default to avoid quota issues for other commands
-    const finalArgs = ['-m', 'gemini-2.5-flash', ...geminiArgs];
+    // Add selected model to avoid quota issues for other commands
+    const finalArgs = ['-m', GeminiService.getSelectedModel(), ...geminiArgs];
     
     // Launch gemini with all the arguments - exactly like calling gemini directly
     const geminiProcess = spawn('gemini', finalArgs, {
@@ -170,8 +173,8 @@ if (command === 'claude') {
       // Only Claude is configured - launch interactive Claude
       render(<App />);
     } else if (isGeminiAuthenticated && !isClaudeAuthenticated) {
-      // Only Gemini is configured - launch interactive Gemini with Flash model
-      const geminiProcess = spawn('gemini', ['-m', 'gemini-2.5-flash'], {
+      // Only Gemini is configured - launch interactive Gemini with selected model
+      const geminiProcess = spawn('gemini', ['-m', GeminiService.getSelectedModel()], {
         stdio: 'inherit'
       });
       
@@ -195,7 +198,8 @@ if (command === 'claude') {
     // Arguments provided without subcommand - route to default provider
     if (isClaudeAuthenticated && !isGeminiAuthenticated) {
       // Default to Claude
-      const claudeProcess = spawn('npx', ['@anthropic-ai/claude-code'].concat(args), {
+      const claudeArgs = ['--model', ClaudeService.getSelectedModel()].concat(args);
+      const claudeProcess = spawn('npx', ['@anthropic-ai/claude-code'].concat(claudeArgs), {
         stdio: 'inherit',
         shell: true
       });
@@ -212,7 +216,7 @@ if (command === 'claude') {
     } else if (isGeminiAuthenticated && !isClaudeAuthenticated) {
       // Default to Gemini - use prompt mode
       const prompt = args.join(' ');
-      const finalArgs = ['-m', 'gemini-2.5-flash', '-p', prompt];
+      const finalArgs = ['-m', GeminiService.getSelectedModel(), '-p', prompt];
       const geminiProcess = spawn('gemini', finalArgs, {
         stdio: 'inherit'
       });

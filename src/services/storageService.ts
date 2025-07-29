@@ -5,6 +5,8 @@ import os from 'os';
 interface StoredCredentials {
   anthropicApiKey?: string;
   geminiApiKey?: string;
+  selectedClaudeModel?: string;
+  selectedGeminiModel?: string;
 }
 
 const CONFIG_DIR = path.join(os.homedir(), '.ecli');
@@ -80,6 +82,22 @@ export class StorageService {
     return {
       isClaudeAuthenticated: !!credentials.anthropicApiKey,
       isGeminiAuthenticated: !!credentials.geminiApiKey
+    };
+  }
+
+  static saveClaudeModel(model: string): void {
+    this.saveCredentials({ selectedClaudeModel: model });
+  }
+
+  static saveGeminiModel(model: string): void {
+    this.saveCredentials({ selectedGeminiModel: model });
+  }
+
+  static getSelectedModels(): { claude?: string; gemini?: string } {
+    const credentials = this.loadCredentials();
+    return {
+      claude: credentials.selectedClaudeModel,
+      gemini: credentials.selectedGeminiModel
     };
   }
 

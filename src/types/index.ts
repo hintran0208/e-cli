@@ -21,6 +21,10 @@ export interface AppState {
   selectedCommandIndex: number;
   isClaudeAuthenticated: boolean;
   isGeminiAuthenticated: boolean;
+  showModelSelection: boolean;
+  selectedModelIndex: number;
+  availableModels: string[];
+  modelProvider: 'claude' | 'gemini' | '';
 }
 
 export interface Command {

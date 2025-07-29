@@ -8,3 +8,4 @@ export { GeminiSetup } from './GeminiSetup.js';
 export { ClaudeSetup } from './ClaudeSetup.js';
 export { MainInterface } from './MainInterface.js';
 export { CommandDropdown } from './CommandDropdown.js';
+export { default as ModelSelection } from './ModelSelection.js';

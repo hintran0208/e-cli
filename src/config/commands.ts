@@ -43,12 +43,12 @@ export const availableCommands: Command[] = [
   },
   {
     name: '/model',
-    description: 'Set the AI model for Claude Code',
+    description: 'Set the AI model for your configured provider',
     action: 'model'
   },
   {
     name: '/setup',
-    description: 'Initialize configuration and switch between different modes',
+    description: 'Initialize configuration for your AI provider',
     action: 'setup'
   },
   {

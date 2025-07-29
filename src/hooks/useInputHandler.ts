@@ -4,6 +4,7 @@ import { GeminiService } from '../services/geminiService.js';
 import { ClaudeService } from '../services/claudeService.js';
 import { availableCommands } from '../config/commands.js';
 import { StorageService } from '../services/storageService.js';
+import { getModelsForProvider } from '../config/models.js';
 
 interface UseInputHandlerProps {
   state: AppState;
@@ -21,6 +22,42 @@ export const useInputHandler = ({
   completeExecution
 }: UseInputHandlerProps) => {
   
+  const handleModelCommand = () => {
+    // Determine which provider is available
+    if (state.isClaudeAuthenticated && !state.isGeminiAuthenticated) {
+      // Only Claude is configured
+      const models = getModelsForProvider('claude');
+      updateState({
+        showModelSelection: true,
+        availableModels: models,
+        selectedModelIndex: 0,
+        modelProvider: 'claude'
+      });
+    } else if (state.isGeminiAuthenticated && !state.isClaudeAuthenticated) {
+      // Only Gemini is configured
+      const models = getModelsForProvider('gemini');
+      updateState({
+        showModelSelection: true,
+        availableModels: models,
+        selectedModelIndex: 0,
+        modelProvider: 'gemini'
+      });
+    } else if (state.isClaudeAuthenticated && state.isGeminiAuthenticated) {
+      // Both are configured - default to Claude for now
+      const models = getModelsForProvider('claude');
+      updateState({
+        showModelSelection: true,
+        availableModels: models,
+        selectedModelIndex: 0,
+        modelProvider: 'claude'
+      });
+    } else {
+      // Neither is configured
+      completeExecution("❌ No AI provider configured. Please run /setup first.");
+    }
+    resetInput();
+  };
+  
   useInput(async (inputChar: string, key: any) => {
     if (key.return) {
       if (state.showModeSelection) {
@@ -37,6 +74,23 @@ export const useInputHandler = ({
             selectedModeIndex: 0
           });
         }
+        resetInput();
+      } else if (state.showModelSelection) {
+        // Handle model selection
+        const selectedModel = state.availableModels[state.selectedModelIndex];
+        if (state.modelProvider === 'claude') {
+          StorageService.saveClaudeModel(selectedModel);
+          completeExecution(`✅ Claude model set to: ${selectedModel}`);
+        } else if (state.modelProvider === 'gemini') {
+          StorageService.saveGeminiModel(selectedModel);
+          completeExecution(`✅ Gemini model set to: ${selectedModel}`);
+        }
+        updateState({ 
+          showModelSelection: false,
+          selectedModelIndex: 0,
+          availableModels: [],
+          modelProvider: ''
+        });
         resetInput();
       } else if (state.showToolSelection) {
         // Handle tool selection
@@ -113,6 +167,9 @@ export const useInputHandler = ({
           completeExecution("✅ Successfully logged out from all services");
         } else if (selectedCommand.action === 'setup' || selectedCommand.action === 'mode') {
           updateState({ showModeSelection: true });
+        } else if (selectedCommand.action === 'model') {
+          // Handle model selection
+          handleModelCommand();
         } else if (selectedCommand.action === 'help') {
           completeExecution(`Available Commands:
 ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n')}
@@ -148,6 +205,9 @@ Usage:
               completeExecution("✅ Successfully logged out from all services");
             } else if (matchedCommand.action === 'setup') {
               updateState({ showModeSelection: true });
+            } else if (matchedCommand.action === 'model') {
+              // Handle model selection
+              handleModelCommand();
             } else if (matchedCommand.action === 'help') {
               completeExecution(`Available Commands:
 ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n')}
@@ -386,6 +446,14 @@ Usage:
         updateState({ selectedToolIndex: state.selectedToolIndex === 0 ? 2 : state.selectedToolIndex - 1 });
       } else if (key.downArrow) {
         updateState({ selectedToolIndex: state.selectedToolIndex === 2 ? 0 : state.selectedToolIndex + 1 });
+      }
+    } else if (state.showModelSelection && (key.upArrow || key.downArrow)) {
+      // Handle arrow key navigation in model selection
+      const maxIndex = state.availableModels.length - 1;
+      if (key.upArrow) {
+        updateState({ selectedModelIndex: state.selectedModelIndex === 0 ? maxIndex : state.selectedModelIndex - 1 });
+      } else if (key.downArrow) {
+        updateState({ selectedModelIndex: state.selectedModelIndex === maxIndex ? 0 : state.selectedModelIndex + 1 });
       }
     } else if (state.showCommandDropdown && (key.upArrow || key.downArrow)) {
       // Handle arrow key navigation in command dropdown
