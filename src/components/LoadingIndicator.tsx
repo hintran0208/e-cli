@@ -3,7 +3,7 @@ import { Box, Text } from 'ink';
 
 interface LoadingIndicatorProps {
   loadingDots: number;
-  currentService: 'claude' | 'gemini' | '';
+  currentService: 'claude' | 'gemini' | 'codex' | '';
 }
 
 export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ loadingDots, currentService }) => {
@@ -13,6 +13,8 @@ export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ loadingDots,
         return '🧠 Claude is thinking';
       case 'gemini':
         return '🤖 Gemini is thinking';
+      case 'codex':
+        return '⚡ Codex is thinking';
       default:
         return '🤖 Processing';
     }

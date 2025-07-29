@@ -13,7 +13,7 @@ interface MainInterfaceProps {
   cursorPosition: number;
   isExecuting: boolean;
   loadingDots: number;
-  currentService: 'claude' | 'gemini' | '';
+  currentService: 'claude' | 'gemini' | 'codex' | '';
   showResponse: boolean;
   responseText: string;
   isStreaming: boolean;

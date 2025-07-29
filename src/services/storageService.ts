@@ -5,8 +5,10 @@ import os from 'os';
 interface StoredCredentials {
   anthropicApiKey?: string;
   geminiApiKey?: string;
+  openaiApiKey?: string;
   selectedClaudeModel?: string;
   selectedGeminiModel?: string;
+  selectedCodexModel?: string;
 }
 
 const CONFIG_DIR = path.join(os.homedir(), '.ecli');
@@ -68,7 +70,7 @@ export class StorageService {
     process.env.GEMINI_API_KEY = apiKey;
   }
 
-  static loadAndSetEnvironmentVariables(): { isClaudeAuthenticated: boolean; isGeminiAuthenticated: boolean } {
+  static loadAndSetEnvironmentVariables(): { isClaudeAuthenticated: boolean; isGeminiAuthenticated: boolean; isCodexAuthenticated: boolean } {
     const credentials = this.loadCredentials();
     
     if (credentials.anthropicApiKey) {
@@ -78,10 +80,15 @@ export class StorageService {
     if (credentials.geminiApiKey) {
       process.env.GEMINI_API_KEY = credentials.geminiApiKey;
     }
+    
+    if (credentials.openaiApiKey) {
+      process.env.OPENAI_API_KEY = credentials.openaiApiKey;
+    }
 
     return {
       isClaudeAuthenticated: !!credentials.anthropicApiKey,
-      isGeminiAuthenticated: !!credentials.geminiApiKey
+      isGeminiAuthenticated: !!credentials.geminiApiKey,
+      isCodexAuthenticated: !!credentials.openaiApiKey
     };
   }
 
@@ -93,11 +100,21 @@ export class StorageService {
     this.saveCredentials({ selectedGeminiModel: model });
   }
 
-  static getSelectedModels(): { claude?: string; gemini?: string } {
+  static saveOpenAIApiKey(apiKey: string): void {
+    this.saveCredentials({ openaiApiKey: apiKey });
+    process.env.OPENAI_API_KEY = apiKey;
+  }
+
+  static saveCodexModel(model: string): void {
+    this.saveCredentials({ selectedCodexModel: model });
+  }
+
+  static getSelectedModels(): { claude?: string; gemini?: string; codex?: string } {
     const credentials = this.loadCredentials();
     return {
       claude: credentials.selectedClaudeModel,
-      gemini: credentials.selectedGeminiModel
+      gemini: credentials.selectedGeminiModel,
+      codex: credentials.selectedCodexModel
     };
   }
 
@@ -105,5 +122,6 @@ export class StorageService {
     this.clearCredentials();
     delete process.env.ANTHROPIC_API_KEY;
     delete process.env.GEMINI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
   }
 }

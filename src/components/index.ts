@@ -6,6 +6,7 @@ export { ModeSelection } from './ModeSelection.js';
 export { ToolSelection } from './ToolSelection.js';
 export { GeminiSetup } from './GeminiSetup.js';
 export { ClaudeSetup } from './ClaudeSetup.js';
+export { CodexSetup } from './CodexSetup.js';
 export { MainInterface } from './MainInterface.js';
 export { CommandDropdown } from './CommandDropdown.js';
 export { default as ModelSelection } from './ModelSelection.js';

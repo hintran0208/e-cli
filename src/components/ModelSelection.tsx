@@ -6,7 +6,7 @@ interface ModelSelectionProps {
   title: string;
   availableModels: string[];
   selectedModelIndex: number;
-  provider: 'claude' | 'gemini';
+  provider: 'claude' | 'gemini' | 'codex';
 }
 
 const ModelSelection: React.FC<ModelSelectionProps> = ({ 
@@ -16,7 +16,7 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({
   provider 
 }) => {
   const gradientTitle = gradient(['#ff6b6b', '#4ecdc4', '#45b7d1'])(title);
-  const providerName = provider === 'claude' ? 'Claude' : 'Gemini';
+  const providerName = provider === 'claude' ? 'Claude' : provider === 'gemini' ? 'Gemini' : 'Codex';
 
   return (
     <Box flexDirection="column" alignItems="center">
