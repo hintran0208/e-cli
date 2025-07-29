@@ -106,7 +106,7 @@ export const useInputHandler = ({
             selectedTool: ''
           });
           completeExecution("✅ Successfully logged out from all services");
-        } else if (selectedCommand.action === 'mode') {
+        } else if (selectedCommand.action === 'setup' || selectedCommand.action === 'mode') {
           updateState({ showModeSelection: true });
         } else if (selectedCommand.action === 'help') {
           completeExecution(`Available Commands:
@@ -115,6 +115,7 @@ ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n'
 Usage:
 • Type "/" to see available commands
 • Use ↑↓ arrows to navigate, Enter to select
+• Type "/setup" to initialize configuration and switch modes
 • Type "ecli claude [prompt]" for Claude Code
 • Type "ecli gemini [prompt]" for Gemini CLI`);
         } else {
@@ -125,7 +126,7 @@ Usage:
         // Handle command execution
         const currentInput = state.input.trim();
         
-        if (currentInput === "/mode") {
+        if (currentInput === "/mode" || currentInput === "/setup") {
           updateState({ showModeSelection: true });
           resetInput();
           return;

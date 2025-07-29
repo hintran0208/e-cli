@@ -49,12 +49,7 @@ export const MainInterface: React.FC<MainInterfaceProps> = ({
       <Box>
         <Text color="whiteBright">• </Text>
         <Text color="blue">/setup</Text>
-        <Text color="whiteBright"> to initialize your configuration</Text>
-      </Box>
-      <Box>
-        <Text color="whiteBright">• </Text>
-        <Text color="blue">/mode</Text>
-        <Text color="whiteBright"> to switch between different modes</Text>
+        <Text color="whiteBright"> to initialize configuration and switch between different modes</Text>
       </Box>
       <Box>
         <Text color="whiteBright">• </Text>

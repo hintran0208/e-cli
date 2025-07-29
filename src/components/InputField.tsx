@@ -25,11 +25,14 @@ export const InputField: React.FC<InputFieldProps> = ({
       {input ? (
         <>
           <Text color="whiteBright">{input.slice(0, cursorPosition)}</Text>
-          <Text color="whiteBright" backgroundColor="gray">{input.charAt(cursorPosition) || " "}</Text>
+          <Text color="whiteBright" backgroundColor="whiteBright">{input.charAt(cursorPosition) || " "}</Text>
           <Text color="whiteBright">{input.slice(cursorPosition + 1)}</Text>
         </>
       ) : (
-        <Text color="whiteBright">{placeholder}</Text>
+        <>
+          <Text color="whiteBright" backgroundColor="whiteBright"> </Text>
+          <Text color="gray">{placeholder}</Text>
+        </>
       )}
     </Box>
   );

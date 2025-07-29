@@ -47,9 +47,9 @@ export const availableCommands: Command[] = [
     action: 'model'
   },
   {
-    name: '/mode',
-    description: 'Switch between different modes',
-    action: 'mode'
+    name: '/setup',
+    description: 'Initialize configuration and switch between different modes',
+    action: 'setup'
   },
   {
     name: '/help',
