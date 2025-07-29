@@ -93,7 +93,12 @@ export const useInputHandler = ({
         }
       } else if (state.showCommandDropdown) {
         // Handle command dropdown selection
-        const selectedCommand = availableCommands[state.selectedCommandIndex];
+        const filteredCommands = state.input.startsWith("/")
+          ? availableCommands.filter(cmd => 
+              cmd.name.toLowerCase().startsWith(state.input.toLowerCase())
+            )
+          : availableCommands;
+        const selectedCommand = filteredCommands[state.selectedCommandIndex];
         updateState({ showCommandDropdown: false });
         
         if (selectedCommand.action === 'logout') {
@@ -126,10 +131,40 @@ Usage:
         // Handle command execution
         const currentInput = state.input.trim();
         
-        if (currentInput === "/mode" || currentInput === "/setup") {
-          updateState({ showModeSelection: true });
-          resetInput();
-          return;
+        // Handle direct command input
+        if (currentInput.startsWith("/")) {
+          const commandName = currentInput;
+          const matchedCommand = availableCommands.find(cmd => cmd.name === commandName);
+          
+          if (matchedCommand) {
+            if (matchedCommand.action === 'logout') {
+              // Handle logout
+              process.env.ANTHROPIC_API_KEY = '';
+              process.env.GEMINI_API_KEY = '';
+              updateState({
+                isClaudeAuthenticated: false,
+                isGeminiAuthenticated: false,
+                selectedTool: ''
+              });
+              completeExecution("✅ Successfully logged out from all services");
+            } else if (matchedCommand.action === 'setup') {
+              updateState({ showModeSelection: true });
+            } else if (matchedCommand.action === 'help') {
+              completeExecution(`Available Commands:
+${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n')}
+
+Usage:
+• Type "/" to see available commands
+• Use ↑↓ arrows to navigate, Enter to select
+• Type "/setup" to initialize configuration and switch modes
+• Type "ecli claude [prompt]" for Claude Code
+• Type "ecli gemini [prompt]" for Gemini CLI`);
+            } else {
+              completeExecution(`Command "${matchedCommand.name}" - ${matchedCommand.description}\n(Implementation coming soon)`);
+            }
+            resetInput();
+            return;
+          }
         } else if (currentInput.startsWith("ecli claude")) {
           const claudeCommand = currentInput.replace("ecli claude", "").trim();
           if (claudeCommand) {
@@ -214,7 +249,12 @@ Usage:
       }
     } else if (state.showCommandDropdown && (key.upArrow || key.downArrow)) {
       // Handle arrow key navigation in command dropdown
-      const maxIndex = availableCommands.length - 1;
+      const filteredCommands = state.input.startsWith("/")
+        ? availableCommands.filter(cmd => 
+            cmd.name.toLowerCase().startsWith(state.input.toLowerCase())
+          )
+        : availableCommands;
+      const maxIndex = filteredCommands.length - 1;
       if (key.upArrow) {
         updateState({ selectedCommandIndex: state.selectedCommandIndex === 0 ? maxIndex : state.selectedCommandIndex - 1 });
       } else if (key.downArrow) {
@@ -236,11 +276,19 @@ Usage:
             showCommandDropdown: false
           });
         } else if (newInput.startsWith("/")) {
-          // Keep dropdown open if still starts with "/"
+          // Keep dropdown open and reset selection if needed
+          const filteredCommands = availableCommands.filter(cmd => 
+            cmd.name.toLowerCase().startsWith(newInput.toLowerCase())
+          );
+          const newSelectedIndex = state.selectedCommandIndex >= filteredCommands.length 
+            ? 0 
+            : state.selectedCommandIndex;
+          
           updateState({
             input: newInput,
             cursorPosition: state.cursorPosition - 1,
-            showCommandDropdown: true
+            showCommandDropdown: true,
+            selectedCommandIndex: newSelectedIndex
           });
         } else {
           // Close dropdown if no longer starts with "/"
@@ -255,10 +303,19 @@ Usage:
       // Handle typing while command dropdown is open
       const newInput = state.input.slice(0, state.cursorPosition) + inputChar + state.input.slice(state.cursorPosition);
       if (newInput.startsWith("/")) {
+        // Filter commands based on new input and reset selection if needed
+        const filteredCommands = availableCommands.filter(cmd => 
+          cmd.name.toLowerCase().startsWith(newInput.toLowerCase())
+        );
+        const newSelectedIndex = state.selectedCommandIndex >= filteredCommands.length 
+          ? 0 
+          : state.selectedCommandIndex;
+        
         updateState({
           input: newInput,
           cursorPosition: state.cursorPosition + 1,
-          showCommandDropdown: true
+          showCommandDropdown: true,
+          selectedCommandIndex: newSelectedIndex
         });
       } else {
         updateState({

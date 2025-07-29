@@ -42,6 +42,13 @@ const App: React.FC = () => {
     return <ModeSelection title={title} selectedModeIndex={state.selectedModeIndex} />;
   }
 
+  // Filter commands based on user input when showing dropdown
+  const filteredCommands = state.showCommandDropdown && state.input.startsWith("/")
+    ? availableCommands.filter(cmd => 
+        cmd.name.toLowerCase().startsWith(state.input.toLowerCase())
+      )
+    : availableCommands;
+
   return (
     <MainInterface
       title={title}
@@ -56,7 +63,7 @@ const App: React.FC = () => {
       streamingText={state.streamingText}
       showCommandDropdown={state.showCommandDropdown}
       selectedCommandIndex={state.selectedCommandIndex}
-      availableCommands={availableCommands}
+      availableCommands={filteredCommands}
     />
   );
 };
