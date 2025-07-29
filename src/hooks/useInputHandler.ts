@@ -70,7 +70,7 @@ export const useInputHandler = ({
             apiKeyInput: "",
             isGeminiAuthenticated: true
           });
-          completeExecution("✅ API key saved successfully!\nYou can now use: ecli gemini [your prompt]");
+          completeExecution("✅ API key saved successfully!\nYou can now use: ecli [your prompt] (defaults to Gemini) or ecli gemini [your prompt]");
           resetInput();
         } else {
           completeExecution("❌ Please enter a valid API key");
@@ -86,7 +86,7 @@ export const useInputHandler = ({
             claudeApiKeyInput: "",
             isClaudeAuthenticated: true
           });
-          completeExecution("✅ API key saved successfully!\nYou can now use: ecli claude [your prompt] or the interactive mode");
+          completeExecution("✅ API key saved successfully!\nYou can now use: ecli [your prompt] (defaults to Claude) or ecli claude [your prompt]");
           resetInput();
         } else {
           completeExecution("❌ Please enter a valid API key");
@@ -121,8 +121,8 @@ Usage:
 • Type "/" to see available commands
 • Use ↑↓ arrows to navigate, Enter to select
 • Type "/setup" to initialize configuration and switch modes
-• Type "ecli claude [prompt]" for Claude Code
-• Type "ecli gemini [prompt]" for Gemini CLI`);
+• After setup: Type your prompt directly or "ecli [prompt]"
+• Or specify: "ecli claude [prompt]" or "ecli gemini [prompt]"`);
         } else {
           completeExecution(`Command "${selectedCommand.name}" - ${selectedCommand.description}\n(Implementation coming soon)`);
         }
@@ -156,8 +156,8 @@ Usage:
 • Type "/" to see available commands
 • Use ↑↓ arrows to navigate, Enter to select
 • Type "/setup" to initialize configuration and switch modes
-• Type "ecli claude [prompt]" for Claude Code
-• Type "ecli gemini [prompt]" for Gemini CLI`);
+• After setup: Type your prompt directly or "ecli [prompt]"
+• Or specify: "ecli claude [prompt]" or "ecli gemini [prompt]"`);
             } else {
               completeExecution(`Command "${matchedCommand.name}" - ${matchedCommand.description}\n(Implementation coming soon)`);
             }
@@ -200,7 +200,7 @@ Usage:
             if (!state.isClaudeAuthenticated) {
               updateState({ showClaudeSetup: true });
             } else {
-              completeExecution('Claude Code ready - Usage:\n• ecli claude "your question here" - for prompts\n• ecli claude /help - for CLI commands');
+              completeExecution('Claude Code ready - Usage:\n• ecli "your question here" - for prompts (defaults to Claude)\n• ecli claude "your question here" - explicit Claude usage\n• ecli claude /help - for CLI commands');
             }
             resetInput();
           }
@@ -220,7 +220,7 @@ Usage:
                 completeExecution(`❌ Unexpected error: ${error}`);
               }
             } else {
-              completeExecution('Gemini CLI ready - Usage:\n• ecli gemini "your question here" - for prompts\n• ecli gemini /help - for CLI commands');
+              completeExecution('Gemini CLI ready - Usage:\n• ecli "your question here" - for prompts (defaults to Gemini)\n• ecli gemini "your question here" - explicit Gemini usage\n• ecli gemini /help - for CLI commands');
               resetInput();
             }
           } else {
@@ -228,6 +228,147 @@ Usage:
             resetInput();
           }
           return;
+        } else if (currentInput.startsWith("ecli ")) {
+          // Handle generic ecli command - route to default provider
+          const prompt = currentInput.replace("ecli ", "").trim();
+          if (prompt) {
+            // Check which provider to use based on authentication state
+            if (state.isClaudeAuthenticated && !state.isGeminiAuthenticated) {
+              // Default to Claude
+              updateState({ 
+                currentService: 'claude',
+                isStreaming: true,
+                streamingText: ''
+              });
+              startExecution();
+              
+              try {
+                const parsedCommand = ClaudeService.parseCommand(prompt);
+                const result = await ClaudeService.executeCommandWithStreaming(
+                  parsedCommand,
+                  (streamText) => {
+                    updateState({ streamingText: streamText });
+                  }
+                );
+                updateState({ isStreaming: false });
+                completeExecution(result.output);
+              } catch (error) {
+                updateState({ isStreaming: false });
+                completeExecution(`❌ Unexpected error: ${error}`);
+              }
+            } else if (state.isGeminiAuthenticated && !state.isClaudeAuthenticated) {
+              // Default to Gemini
+              updateState({ currentService: 'gemini' });
+              startExecution();
+              
+              try {
+                const parsedCommand = GeminiService.parseCommand(prompt);
+                const result = await GeminiService.executeCommand(parsedCommand);
+                completeExecution(result.output);
+              } catch (error) {
+                completeExecution(`❌ Unexpected error: ${error}`);
+              }
+            } else if (state.isClaudeAuthenticated && state.isGeminiAuthenticated) {
+              // Both configured - show selection or use a default (let's default to Claude)
+              updateState({ 
+                currentService: 'claude',
+                isStreaming: true,
+                streamingText: ''
+              });
+              startExecution();
+              
+              try {
+                const parsedCommand = ClaudeService.parseCommand(prompt);
+                const result = await ClaudeService.executeCommandWithStreaming(
+                  parsedCommand,
+                  (streamText) => {
+                    updateState({ streamingText: streamText });
+                  }
+                );
+                updateState({ isStreaming: false });
+                completeExecution(result.output);
+              } catch (error) {
+                updateState({ isStreaming: false });
+                completeExecution(`❌ Unexpected error: ${error}`);
+              }
+            } else {
+              // Neither configured
+              completeExecution("❌ No AI provider configured. Please run /setup first.");
+            }
+          } else {
+            completeExecution("Usage: ecli \"your prompt here\"");
+          }
+          resetInput();
+          return;
+        } else {
+          // Handle direct prompt input - route to default provider if configured
+          if (currentInput && !currentInput.startsWith("/")) {
+            // Check which provider to use based on authentication state
+            if (state.isClaudeAuthenticated && !state.isGeminiAuthenticated) {
+              // Default to Claude
+              updateState({ 
+                currentService: 'claude',
+                isStreaming: true,
+                streamingText: ''
+              });
+              startExecution();
+              
+              try {
+                const parsedCommand = ClaudeService.parseCommand(currentInput);
+                const result = await ClaudeService.executeCommandWithStreaming(
+                  parsedCommand,
+                  (streamText) => {
+                    updateState({ streamingText: streamText });
+                  }
+                );
+                updateState({ isStreaming: false });
+                completeExecution(result.output);
+              } catch (error) {
+                updateState({ isStreaming: false });
+                completeExecution(`❌ Unexpected error: ${error}`);
+              }
+            } else if (state.isGeminiAuthenticated && !state.isClaudeAuthenticated) {
+              // Default to Gemini
+              updateState({ currentService: 'gemini' });
+              startExecution();
+              
+              try {
+                const parsedCommand = GeminiService.parseCommand(currentInput);
+                const result = await GeminiService.executeCommand(parsedCommand);
+                completeExecution(result.output);
+              } catch (error) {
+                completeExecution(`❌ Unexpected error: ${error}`);
+              }
+            } else if (state.isClaudeAuthenticated && state.isGeminiAuthenticated) {
+              // Both configured - default to Claude
+              updateState({ 
+                currentService: 'claude',
+                isStreaming: true,
+                streamingText: ''
+              });
+              startExecution();
+              
+              try {
+                const parsedCommand = ClaudeService.parseCommand(currentInput);
+                const result = await ClaudeService.executeCommandWithStreaming(
+                  parsedCommand,
+                  (streamText) => {
+                    updateState({ streamingText: streamText });
+                  }
+                );
+                updateState({ isStreaming: false });
+                completeExecution(result.output);
+              } catch (error) {
+                updateState({ isStreaming: false });
+                completeExecution(`❌ Unexpected error: ${error}`);
+              }
+            } else {
+              // Neither configured
+              completeExecution("❌ No AI provider configured. Please run /setup first.");
+            }
+            resetInput();
+            return;
+          }
         }
         console.log(`Executing: ${currentInput}`);
         process.exit(0);

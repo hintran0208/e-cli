@@ -4,9 +4,13 @@ import { render, Text } from 'ink';
 import { spawn } from 'child_process';
 import * as pty from 'node-pty';
 import App from './App.js';
+import { StorageService } from './services/storageService.js';
 
 const args = process.argv.slice(2);
 const command = args[0];
+
+// Load stored credentials to determine default behavior
+const { isClaudeAuthenticated, isGeminiAuthenticated } = StorageService.loadAndSetEnvironmentVariables();
 
 // Handle claude subcommand - make it work exactly like the @anthropic-ai/claude-code package
 if (command === 'claude') {
@@ -159,6 +163,72 @@ if (command === 'claude') {
     process.exit(1);
   });
 } else {
-  // Default behavior - run the interactive CLI
-  render(<App />);
+  // No subcommand provided - check for configured API keys and default behavior
+  if (args.length === 0) {
+    // Just "ecli" with no arguments - determine default provider
+    if (isClaudeAuthenticated && !isGeminiAuthenticated) {
+      // Only Claude is configured - launch interactive Claude
+      render(<App />);
+    } else if (isGeminiAuthenticated && !isClaudeAuthenticated) {
+      // Only Gemini is configured - launch interactive Gemini with Flash model
+      const geminiProcess = spawn('gemini', ['-m', 'gemini-2.5-flash'], {
+        stdio: 'inherit'
+      });
+      
+      geminiProcess.on('close', (exitCode) => {
+        process.exit(exitCode || 0);
+      });
+      
+      geminiProcess.on('error', (error) => {
+        console.error(`Error spawning gemini process: ${error.message}`);
+        console.error('Make sure Gemini CLI is installed');
+        process.exit(1);
+      });
+    } else if (isClaudeAuthenticated && isGeminiAuthenticated) {
+      // Both are configured - show interactive selection
+      render(<App />);
+    } else {
+      // Neither is configured - show setup
+      render(<App />);
+    }
+  } else {
+    // Arguments provided without subcommand - route to default provider
+    if (isClaudeAuthenticated && !isGeminiAuthenticated) {
+      // Default to Claude
+      const claudeProcess = spawn('npx', ['@anthropic-ai/claude-code'].concat(args), {
+        stdio: 'inherit',
+        shell: true
+      });
+      
+      claudeProcess.on('close', (exitCode) => {
+        process.exit(exitCode || 0);
+      });
+      
+      claudeProcess.on('error', (error) => {
+        console.error(`Error spawning claude process: ${error.message}`);
+        console.error('Make sure @anthropic-ai/claude-code is installed');
+        process.exit(1);
+      });
+    } else if (isGeminiAuthenticated && !isClaudeAuthenticated) {
+      // Default to Gemini - use prompt mode
+      const prompt = args.join(' ');
+      const finalArgs = ['-m', 'gemini-2.5-flash', '-p', prompt];
+      const geminiProcess = spawn('gemini', finalArgs, {
+        stdio: 'inherit'
+      });
+      
+      geminiProcess.on('close', (exitCode) => {
+        process.exit(exitCode || 0);
+      });
+      
+      geminiProcess.on('error', (error) => {
+        console.error(`Error spawning gemini process: ${error.message}`);
+        console.error('Make sure Gemini CLI is installed');
+        process.exit(1);
+      });
+    } else {
+      // Both configured or neither configured - show interactive CLI for selection
+      render(<App />);
+    }
+  }
 }
