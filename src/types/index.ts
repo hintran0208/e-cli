@@ -15,7 +15,6 @@ export interface AppState {
   isExecuting: boolean;
   currentService: 'claude' | 'gemini' | 'codex' | '';
   responseText: string;
-  showResponse: boolean;
   loadingDots: number;
   isStreaming: boolean;
   streamingText: string;
@@ -28,6 +27,8 @@ export interface AppState {
   selectedModelIndex: number;
   availableModels: string[];
   modelProvider: 'claude' | 'gemini' | 'codex' | '';
+  showWelcome: boolean;
+  conversationHistory: ConversationMessage[];
 }
 
 export interface Command {
@@ -50,4 +51,12 @@ export interface ProcessResult {
   success: boolean;
   output: string;
   error?: string;
+}
+
+export interface ConversationMessage {
+  id: string;
+  type: 'user' | 'assistant';
+  content: string;
+  service?: 'claude' | 'gemini' | 'codex';
+  timestamp: Date;
 }

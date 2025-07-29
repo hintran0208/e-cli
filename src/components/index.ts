@@ -9,4 +9,5 @@ export { ClaudeSetup } from './ClaudeSetup.js';
 export { CodexSetup } from './CodexSetup.js';
 export { MainInterface } from './MainInterface.js';
 export { CommandDropdown } from './CommandDropdown.js';
+export { ConversationHistory } from './ConversationHistory.js';
 export { default as ModelSelection } from './ModelSelection.js';

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AppState } from '../types/index.js';
+import { AppState, ConversationMessage } from '../types/index.js';
 import { StorageService } from '../services/storageService.js';
 
 // Load credentials on app start
@@ -22,7 +22,6 @@ const initialState: AppState = {
   isExecuting: false,
   currentService: '',
   responseText: '',
-  showResponse: false,
   loadingDots: 0,
   isStreaming: false,
   streamingText: '',
@@ -35,6 +34,8 @@ const initialState: AppState = {
   selectedModelIndex: 0,
   availableModels: [],
   modelProvider: '',
+  showWelcome: true,
+  conversationHistory: [],
 };
 
 export const useAppState = () => {
@@ -68,20 +69,60 @@ export const useAppState = () => {
   };
 
   const startExecution = () => {
-    updateState({
+    setState(prev => ({
+      ...prev,
       input: '',
       cursorPosition: 0,
-      showResponse: false,
       isExecuting: true
-    });
+    }));
   };
 
   const completeExecution = (responseText: string) => {
-    updateState({
+    setState(prev => ({
+      ...prev,
       isExecuting: false,
       responseText,
-      showResponse: true
-    });
+      isStreaming: false,
+      streamingText: ''
+    }));
+  };
+
+  const completeExecutionWithHistory = (responseText: string, service?: 'claude' | 'gemini' | 'codex') => {
+    // Add to conversation history and complete execution
+    if (service) {
+      addAssistantMessage(responseText, service);
+    } else {
+      addAssistantMessage(responseText);
+    }
+    completeExecution(responseText);
+  };
+
+  const addUserMessage = (content: string) => {
+    const message: ConversationMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content,
+      timestamp: new Date()
+    };
+    setState(prev => ({
+      ...prev,
+      conversationHistory: [...prev.conversationHistory, message]
+      // Keep showWelcome: true so tips always stay visible
+    }));
+  };
+
+  const addAssistantMessage = (content: string, service?: 'claude' | 'gemini' | 'codex') => {
+    const message: ConversationMessage = {
+      id: Date.now().toString(),
+      type: 'assistant',
+      content,
+      service,
+      timestamp: new Date()
+    };
+    setState(prev => ({
+      ...prev,
+      conversationHistory: [...prev.conversationHistory, message]
+    }));
   };
 
   return {
@@ -89,6 +130,9 @@ export const useAppState = () => {
     updateState,
     resetInput,
     startExecution,
-    completeExecution
+    completeExecution,
+    completeExecutionWithHistory,
+    addUserMessage,
+    addAssistantMessage
   };
 };

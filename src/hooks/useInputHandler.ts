@@ -13,6 +13,9 @@ interface UseInputHandlerProps {
   resetInput: () => void;
   startExecution: () => void;
   completeExecution: (responseText: string) => void;
+  completeExecutionWithHistory: (responseText: string, service?: 'claude' | 'gemini' | 'codex') => void;
+  addUserMessage: (content: string) => void;
+  addAssistantMessage: (content: string, service?: 'claude' | 'gemini' | 'codex') => void;
 }
 
 export const useInputHandler = ({
@@ -20,8 +23,64 @@ export const useInputHandler = ({
   updateState,
   resetInput,
   startExecution,
-  completeExecution
+  completeExecution,
+  completeExecutionWithHistory,
+  addUserMessage,
+  addAssistantMessage
 }: UseInputHandlerProps) => {
+  
+  const extractUserMessage = (fullPrompt: string): string => {
+    // Extract the actual user message from various command formats
+    if (fullPrompt.startsWith("ecli claude ")) {
+      return fullPrompt.replace("ecli claude ", "").trim();
+    } else if (fullPrompt.startsWith("ecli gemini ")) {
+      return fullPrompt.replace("ecli gemini ", "").trim();
+    } else if (fullPrompt.startsWith("ecli codex ")) {
+      return fullPrompt.replace("ecli codex ", "").trim();
+    } else if (fullPrompt.startsWith("ecli ")) {
+      return fullPrompt.replace("ecli ", "").trim();
+    }
+    return fullPrompt;
+  };
+  
+  const executePromptWithHistory = async (
+    prompt: string, 
+    service: 'claude' | 'gemini' | 'codex',
+    serviceCall: () => Promise<any>,
+    isStreaming = false,
+    userMessage?: string
+  ) => {
+    // Extract user message from prompt
+    const messageToAdd = userMessage || extractUserMessage(prompt);
+    
+    // Add user message to conversation history and start execution
+    addUserMessage(messageToAdd);
+    
+    // Start execution with service info
+    updateState({ 
+      currentService: service,
+      isStreaming: isStreaming,
+      streamingText: '',
+      input: '',
+      cursorPosition: 0,
+      isExecuting: true
+    });
+    
+    try {
+      const result = await serviceCall();
+      // Use completeExecutionWithHistory to add assistant message and complete
+      if (isStreaming) {
+        updateState({ isStreaming: false });
+      }
+      completeExecutionWithHistory(result.output, service);
+    } catch (error) {
+      const errorMsg = `❌ Unexpected error: ${error}`;
+      if (isStreaming) {
+        updateState({ isStreaming: false });
+      }
+      completeExecutionWithHistory(errorMsg, service);
+    }
+  };
   
   const handleModelCommand = () => {
     // Determine which providers are available and prioritize
@@ -280,28 +339,15 @@ ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n'
               return;
             }
             
-            updateState({ 
-              currentService: 'claude',
-              isStreaming: true,
-              streamingText: ''
-            });
-            startExecution();
-            
-            try {
+            await executePromptWithHistory(currentInput, 'claude', async () => {
               const parsedCommand = ClaudeService.parseCommand(claudeCommand);
-              const result = await ClaudeService.executeCommandWithStreaming(
+              return await ClaudeService.executeCommandWithStreaming(
                 parsedCommand,
                 (streamText) => {
-                  // Update streaming text in real-time
                   updateState({ streamingText: streamText });
                 }
               );
-              updateState({ isStreaming: false });
-              completeExecution(result.output);
-            } catch (error) {
-              updateState({ isStreaming: false });
-              completeExecution(`❌ Unexpected error: ${error}`);
-            }
+            }, true); // isStreaming = true
           } else {
             if (!state.isClaudeAuthenticated) {
               updateState({ showClaudeSetup: true });
@@ -315,16 +361,10 @@ ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n'
           if (state.selectedTool === "Gemini CLI") {
             const geminiCommand = currentInput.replace("ecli gemini", "").trim();
             if (geminiCommand) {
-              updateState({ currentService: 'gemini' });
-              startExecution();
-              
-              try {
+              await executePromptWithHistory(currentInput, 'gemini', async () => {
                 const parsedCommand = GeminiService.parseCommand(geminiCommand);
-                const result = await GeminiService.executeCommand(parsedCommand);
-                completeExecution(result.output);
-              } catch (error) {
-                completeExecution(`❌ Unexpected error: ${error}`);
-              }
+                return await GeminiService.executeCommand(parsedCommand);
+              });
             } else {
               completeExecution('🤖 Gemini CLI is ready!\n\n✨ Try these commands:\n• "your question here" - Ask Gemini anything\n• ecli gemini "your question here" - Explicit Gemini usage\n• /help - See all available options');
               resetInput();
@@ -344,16 +384,10 @@ ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n'
               return;
             }
             
-            updateState({ currentService: 'codex' });
-            startExecution();
-            
-            try {
+            await executePromptWithHistory(currentInput, 'codex', async () => {
               const parsedCommand = CodexService.parseCommand(codexCommand);
-              const result = await CodexService.executeCommand(parsedCommand);
-              completeExecution(result.output);
-            } catch (error) {
-              completeExecution(`❌ Unexpected error: ${error}`);
-            }
+              return await CodexService.executeCommand(parsedCommand);
+            });
           } else {
             if (!state.isCodexAuthenticated) {
               updateState({ showCodexSetup: true });
@@ -370,97 +404,49 @@ ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n'
             // Check which provider to use based on authentication state - prioritize in order
             if (state.isClaudeAuthenticated && !state.isGeminiAuthenticated && !state.isCodexAuthenticated) {
               // Only Claude configured
-              updateState({ 
-                currentService: 'claude',
-                isStreaming: true,
-                streamingText: ''
-              });
-              startExecution();
-              
-              try {
+              await executePromptWithHistory(currentInput, 'claude', async () => {
                 const parsedCommand = ClaudeService.parseCommand(prompt);
-                const result = await ClaudeService.executeCommandWithStreaming(
+                return await ClaudeService.executeCommandWithStreaming(
                   parsedCommand,
                   (streamText) => {
                     updateState({ streamingText: streamText });
                   }
                 );
-                updateState({ isStreaming: false });
-                completeExecution(result.output);
-              } catch (error) {
-                updateState({ isStreaming: false });
-                completeExecution(`❌ Unexpected error: ${error}`);
-              }
+              }, true); // isStreaming = true
             } else if (state.isGeminiAuthenticated && !state.isClaudeAuthenticated && !state.isCodexAuthenticated) {
               // Only Gemini configured
-              updateState({ currentService: 'gemini' });
-              startExecution();
-              
-              try {
+              await executePromptWithHistory(currentInput, 'gemini', async () => {
                 const parsedCommand = GeminiService.parseCommand(prompt);
-                const result = await GeminiService.executeCommand(parsedCommand);
-                completeExecution(result.output);
-              } catch (error) {
-                completeExecution(`❌ Unexpected error: ${error}`);
-              }
+                return await GeminiService.executeCommand(parsedCommand);
+              });
             } else if (state.isCodexAuthenticated && !state.isClaudeAuthenticated && !state.isGeminiAuthenticated) {
               // Only Codex configured
-              updateState({ currentService: 'codex' });
-              startExecution();
-              
-              try {
+              await executePromptWithHistory(currentInput, 'codex', async () => {
                 const parsedCommand = CodexService.parseCommand(prompt);
-                const result = await CodexService.executeCommand(parsedCommand);
-                completeExecution(result.output);
-              } catch (error) {
-                completeExecution(`❌ Unexpected error: ${error}`);
-              }
+                return await CodexService.executeCommand(parsedCommand);
+              });
             } else if (state.isClaudeAuthenticated || state.isGeminiAuthenticated || state.isCodexAuthenticated) {
               // Multiple providers configured - default to first available (Claude > Gemini > Codex)
               if (state.isClaudeAuthenticated) {
-                updateState({ 
-                  currentService: 'claude',
-                  isStreaming: true,
-                  streamingText: ''
-                });
-                startExecution();
-                
-                try {
+                await executePromptWithHistory(currentInput, 'claude', async () => {
                   const parsedCommand = ClaudeService.parseCommand(prompt);
-                  const result = await ClaudeService.executeCommandWithStreaming(
+                  return await ClaudeService.executeCommandWithStreaming(
                     parsedCommand,
                     (streamText) => {
                       updateState({ streamingText: streamText });
                     }
                   );
-                  updateState({ isStreaming: false });
-                  completeExecution(result.output);
-                } catch (error) {
-                  updateState({ isStreaming: false });
-                  completeExecution(`❌ Unexpected error: ${error}`);
-                }
+                }, true); // isStreaming = true
               } else if (state.isGeminiAuthenticated) {
-                updateState({ currentService: 'gemini' });
-                startExecution();
-                
-                try {
+                await executePromptWithHistory(currentInput, 'gemini', async () => {
                   const parsedCommand = GeminiService.parseCommand(prompt);
-                  const result = await GeminiService.executeCommand(parsedCommand);
-                  completeExecution(result.output);
-                } catch (error) {
-                  completeExecution(`❌ Unexpected error: ${error}`);
-                }
+                  return await GeminiService.executeCommand(parsedCommand);
+                });
               } else if (state.isCodexAuthenticated) {
-                updateState({ currentService: 'codex' });
-                startExecution();
-                
-                try {
+                await executePromptWithHistory(currentInput, 'codex', async () => {
                   const parsedCommand = CodexService.parseCommand(prompt);
-                  const result = await CodexService.executeCommand(parsedCommand);
-                  completeExecution(result.output);
-                } catch (error) {
-                  completeExecution(`❌ Unexpected error: ${error}`);
-                }
+                  return await CodexService.executeCommand(parsedCommand);
+                });
               }
             } else {
               // No provider configured  
@@ -477,97 +463,49 @@ ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n'
             // Check which provider to use based on authentication state - prioritize in order
             if (state.isClaudeAuthenticated && !state.isGeminiAuthenticated && !state.isCodexAuthenticated) {
               // Only Claude configured
-              updateState({ 
-                currentService: 'claude',
-                isStreaming: true,
-                streamingText: ''
-              });
-              startExecution();
-              
-              try {
+              await executePromptWithHistory(currentInput, 'claude', async () => {
                 const parsedCommand = ClaudeService.parseCommand(currentInput);
-                const result = await ClaudeService.executeCommandWithStreaming(
+                return await ClaudeService.executeCommandWithStreaming(
                   parsedCommand,
                   (streamText) => {
                     updateState({ streamingText: streamText });
                   }
                 );
-                updateState({ isStreaming: false });
-                completeExecution(result.output);
-              } catch (error) {
-                updateState({ isStreaming: false });
-                completeExecution(`❌ Unexpected error: ${error}`);
-              }
+              }, true); // isStreaming = true
             } else if (state.isGeminiAuthenticated && !state.isClaudeAuthenticated && !state.isCodexAuthenticated) {
               // Only Gemini configured
-              updateState({ currentService: 'gemini' });
-              startExecution();
-              
-              try {
+              await executePromptWithHistory(currentInput, 'gemini', async () => {
                 const parsedCommand = GeminiService.parseCommand(currentInput);
-                const result = await GeminiService.executeCommand(parsedCommand);
-                completeExecution(result.output);
-              } catch (error) {
-                completeExecution(`❌ Unexpected error: ${error}`);
-              }
+                return await GeminiService.executeCommand(parsedCommand);
+              });
             } else if (state.isCodexAuthenticated && !state.isClaudeAuthenticated && !state.isGeminiAuthenticated) {
               // Only Codex configured
-              updateState({ currentService: 'codex' });
-              startExecution();
-              
-              try {
+              await executePromptWithHistory(currentInput, 'codex', async () => {
                 const parsedCommand = CodexService.parseCommand(currentInput);
-                const result = await CodexService.executeCommand(parsedCommand);
-                completeExecution(result.output);
-              } catch (error) {
-                completeExecution(`❌ Unexpected error: ${error}`);
-              }
+                return await CodexService.executeCommand(parsedCommand);
+              });
             } else if (state.isClaudeAuthenticated || state.isGeminiAuthenticated || state.isCodexAuthenticated) {
               // Multiple providers configured - default to first available (Claude > Gemini > Codex)
               if (state.isClaudeAuthenticated) {
-                updateState({ 
-                  currentService: 'claude',
-                  isStreaming: true,
-                  streamingText: ''
-                });
-                startExecution();
-                
-                try {
+                await executePromptWithHistory(currentInput, 'claude', async () => {
                   const parsedCommand = ClaudeService.parseCommand(currentInput);
-                  const result = await ClaudeService.executeCommandWithStreaming(
+                  return await ClaudeService.executeCommandWithStreaming(
                     parsedCommand,
                     (streamText) => {
                       updateState({ streamingText: streamText });
                     }
                   );
-                  updateState({ isStreaming: false });
-                  completeExecution(result.output);
-                } catch (error) {
-                  updateState({ isStreaming: false });
-                  completeExecution(`❌ Unexpected error: ${error}`);
-                }
+                }, true); // isStreaming = true
               } else if (state.isGeminiAuthenticated) {
-                updateState({ currentService: 'gemini' });
-                startExecution();
-                
-                try {
+                await executePromptWithHistory(currentInput, 'gemini', async () => {
                   const parsedCommand = GeminiService.parseCommand(currentInput);
-                  const result = await GeminiService.executeCommand(parsedCommand);
-                  completeExecution(result.output);
-                } catch (error) {
-                  completeExecution(`❌ Unexpected error: ${error}`);
-                }
+                  return await GeminiService.executeCommand(parsedCommand);
+                });
               } else if (state.isCodexAuthenticated) {
-                updateState({ currentService: 'codex' });
-                startExecution();
-                
-                try {
+                await executePromptWithHistory(currentInput, 'codex', async () => {
                   const parsedCommand = CodexService.parseCommand(currentInput);
-                  const result = await CodexService.executeCommand(parsedCommand);
-                  completeExecution(result.output);
-                } catch (error) {
-                  completeExecution(`❌ Unexpected error: ${error}`);
-                }
+                  return await CodexService.executeCommand(parsedCommand);
+                });
               }
             } else {
               // No provider configured

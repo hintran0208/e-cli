@@ -5,7 +5,7 @@ import { useInputHandler } from "./hooks/useInputHandler.js";
 import { availableCommands } from "./config/commands.js";
 
 const App: React.FC = () => {
-  const { state, updateState, resetInput, startExecution, completeExecution } = useAppState();
+  const { state, updateState, resetInput, startExecution, completeExecution, completeExecutionWithHistory, addUserMessage, addAssistantMessage } = useAppState();
 
   // Handle all input interactions
   useInputHandler({
@@ -13,7 +13,10 @@ const App: React.FC = () => {
     updateState,
     resetInput,
     startExecution,
-    completeExecution
+    completeExecution,
+    completeExecutionWithHistory,
+    addUserMessage,
+    addAssistantMessage
   });
 
   const title = `
@@ -72,13 +75,14 @@ const App: React.FC = () => {
       isExecuting={state.isExecuting}
       loadingDots={state.loadingDots}
       currentService={state.currentService}
-      showResponse={state.showResponse}
       responseText={state.responseText}
       isStreaming={state.isStreaming}
       streamingText={state.streamingText}
       showCommandDropdown={state.showCommandDropdown}
       selectedCommandIndex={state.selectedCommandIndex}
       availableCommands={filteredCommands}
+      showWelcome={state.showWelcome}
+      conversationHistory={state.conversationHistory}
     />
   );
 };
