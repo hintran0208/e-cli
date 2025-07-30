@@ -12,11 +12,9 @@ const App: React.FC = () => {
     state,
     updateState,
     resetInput,
-    startExecution,
     completeExecution,
     completeExecutionWithHistory,
-    addUserMessage,
-    addAssistantMessage
+    addUserMessage
   });
 
   const title = `

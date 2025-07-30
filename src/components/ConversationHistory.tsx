@@ -40,14 +40,14 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({ messag
               </Box>
             </Box>
           ) : message.type === 'system' ? (
-            // System Message - Emphasized style with bright colors
+            // System Message - Emphasized style with blue colors
             <Box flexDirection="column">
               <Box marginBottom={0}>
-                <Text color="yellow" bold>System </Text>
+                <Text color="blue" bold>System </Text>
                 <Text color="gray" dimColor>{formatTime(message.timestamp)}</Text>
               </Box>
-              <Box paddingLeft={2} paddingY={0} borderStyle="round" borderColor="yellow" paddingX={1}>
-                <Text color="yellowBright" bold>{message.content}</Text>
+              <Box paddingLeft={2} paddingY={0} borderStyle="round" borderColor="blue" paddingX={1}>
+                <Text color="blueBright" bold>{message.content}</Text>
               </Box>
             </Box>
           ) : (

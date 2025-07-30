@@ -11,22 +11,18 @@ interface UseInputHandlerProps {
   state: AppState;
   updateState: (updates: Partial<AppState>) => void;
   resetInput: () => void;
-  startExecution: () => void;
   completeExecution: (responseText: string) => void;
   completeExecutionWithHistory: (responseText: string, service?: 'claude' | 'gemini' | 'codex') => void;
   addUserMessage: (content: string) => void;
-  addAssistantMessage: (content: string, service?: 'claude' | 'gemini' | 'codex') => void;
 }
 
 export const useInputHandler = ({
   state,
   updateState,
   resetInput,
-  startExecution,
   completeExecution,
   completeExecutionWithHistory,
-  addUserMessage,
-  addAssistantMessage
+  addUserMessage
 }: UseInputHandlerProps) => {
   
   const extractUserMessage = (fullPrompt: string): string => {
