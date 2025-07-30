@@ -55,7 +55,7 @@ export interface ProcessResult {
 
 export interface ConversationMessage {
   id: string;
-  type: 'user' | 'assistant';
+  type: 'user' | 'assistant' | 'system';
   content: string;
   service?: 'claude' | 'gemini' | 'codex';
   timestamp: Date;

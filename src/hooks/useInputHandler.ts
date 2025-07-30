@@ -90,7 +90,7 @@ export const useInputHandler = ({
     if (state.isCodexAuthenticated) authenticatedProviders.push('codex');
 
     if (authenticatedProviders.length === 0) {
-      completeExecution("🚀 Welcome to E-CLI!\n\n❌ No AI provider configured yet.\n\n📝 Quick Setup:\n• Type /setup to choose and configure an AI provider\n• Available options: Claude Code, Gemini CLI, or OpenAI Codex\n• After setup, you can use: \"your question here\"\n\n💡 Need help? Type /help for more information");
+      completeExecutionWithHistory("Welcome to E-CLI!\n\nNo AI provider configured yet.\n\nQuick Setup:\n• Type /setup to choose and configure an AI provider\n• Available options: Claude Code, Gemini CLI, or OpenAI Codex\n• After setup, you can use: \"your question here\"\n\nNeed help? Type /help for more information");
     } else if (authenticatedProviders.length === 1) {
       // Only one provider configured
       const provider = authenticatedProviders[0] as 'claude' | 'gemini' | 'codex';
@@ -137,13 +137,13 @@ export const useInputHandler = ({
         const selectedModel = state.availableModels[state.selectedModelIndex];
         if (state.modelProvider === 'claude') {
           StorageService.saveClaudeModel(selectedModel);
-          completeExecution(`✅ Claude model set to: ${selectedModel}`);
+          completeExecutionWithHistory(`Claude model set to: ${selectedModel}`);
         } else if (state.modelProvider === 'gemini') {
           StorageService.saveGeminiModel(selectedModel);
-          completeExecution(`✅ Gemini model set to: ${selectedModel}`);
+          completeExecutionWithHistory(`Gemini model set to: ${selectedModel}`);
         } else if (state.modelProvider === 'codex') {
           StorageService.saveCodexModel(selectedModel);
-          completeExecution(`✅ Codex model set to: ${selectedModel}`);
+          completeExecutionWithHistory(`Codex model set to: ${selectedModel}`);
         }
         updateState({ 
           showModelSelection: false,
@@ -189,10 +189,10 @@ export const useInputHandler = ({
             apiKeyInput: "",
             isGeminiAuthenticated: true
           });
-          completeExecution("✅ Gemini CLI configured successfully!\n\n🎉 You're all set! Try these:\n• \"Write a hello world program\"\n• ecli gemini \"Explain machine learning\"\n• /help for more options");
+          completeExecutionWithHistory("Gemini CLI configured successfully!\n\nYou're all set! Try these:\n• \"Write a hello world program\"\n• ecli gemini \"Explain machine learning\"\n• /help for more options");
           resetInput();
         } else {
-          completeExecution("❌ Please enter a valid API key");
+          completeExecutionWithHistory("Please enter a valid API key");
           resetInput();
         }
       } else if (state.showClaudeSetup) {
@@ -205,10 +205,10 @@ export const useInputHandler = ({
             claudeApiKeyInput: "",
             isClaudeAuthenticated: true
           });
-          completeExecution("✅ Claude Code configured successfully!\n\n🎉 You're all set! Try these:\n• \"Write a hello world program\"\n• ecli claude \"Explain this code\"\n• /help for more options");
+          completeExecutionWithHistory("Claude Code configured successfully!\n\nYou're all set! Try these:\n• \"Write a hello world program\"\n• ecli claude \"Explain this code\"\n• /help for more options");
           resetInput();
         } else {
-          completeExecution("❌ Please enter a valid API key");
+          completeExecutionWithHistory("Please enter a valid API key");
           resetInput();
         }
       } else if (state.showCodexSetup) {
@@ -221,10 +221,10 @@ export const useInputHandler = ({
             codexApiKeyInput: "",
             isCodexAuthenticated: true
           });
-          completeExecution("✅ OpenAI Codex configured successfully!\n\n🎉 You're all set! Try these:\n• \"Write a hello world program\"\n• ecli codex \"Debug this JavaScript error\"\n• /help for more options");
+          completeExecutionWithHistory("OpenAI Codex configured successfully!\n\nYou're all set! Try these:\n• \"Write a hello world program\"\n• ecli codex \"Debug this JavaScript error\"\n• /help for more options");
           resetInput();
         } else {
-          completeExecution("❌ Please enter a valid API key");
+          completeExecutionWithHistory("Please enter a valid API key");
           resetInput();
         }
       } else if (state.showCommandDropdown) {
@@ -246,7 +246,7 @@ export const useInputHandler = ({
             isCodexAuthenticated: false,
             selectedTool: ''
           });
-          completeExecution("✅ Successfully logged out from all services");
+          completeExecutionWithHistory("Successfully logged out from all services");
         } else if (selectedCommand.action === 'setup' || selectedCommand.action === 'mode') {
           updateState({ showModeSelection: true });
         } else if (selectedCommand.action === 'model') {
@@ -296,7 +296,7 @@ ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n'
                 isCodexAuthenticated: false,
                 selectedTool: ''
               });
-              completeExecution("✅ Successfully logged out from all services");
+              completeExecutionWithHistory("Successfully logged out from all services");
             } else if (matchedCommand.action === 'setup') {
               updateState({ showModeSelection: true });
             } else if (matchedCommand.action === 'model') {
@@ -450,10 +450,10 @@ ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n'
               }
             } else {
               // No provider configured  
-              completeExecution("🚀 Welcome to E-CLI!\n\n❌ No AI provider configured yet.\n\n📝 Quick Setup:\n• Type /setup to choose and configure an AI provider\n• Available options: Claude Code, Gemini CLI, or OpenAI Codex\n• After setup, you can use: ecli \"your question here\"\n\n💡 Need help? Type /help for more information");
+              completeExecutionWithHistory("Welcome to E-CLI!\n\nNo AI provider configured yet.\n\nQuick Setup:\n• Type /setup to choose and configure an AI provider\n• Available options: Claude Code, Gemini CLI, or OpenAI Codex\n• After setup, you can use: ecli \"your question here\"\n\nNeed help? Type /help for more information");
             }
           } else {
-            completeExecution("Usage: ecli \"your prompt here\"");
+            completeExecutionWithHistory("Usage: ecli \"your prompt here\"");
           }
           resetInput();
           return;
@@ -509,7 +509,7 @@ ${availableCommands.map(cmd => `• ${cmd.name} - ${cmd.description}`).join('\n'
               }
             } else {
               // No provider configured
-              completeExecution("🚀 Welcome to E-CLI!\n\n❌ No AI provider configured yet.\n\n📝 Quick Setup:\n• Type /setup to choose and configure an AI provider\n• Available options: Claude Code, Gemini CLI, or OpenAI Codex\n• After setup, you can use: \"your question here\"\n\n💡 Need help? Type /help for more information");
+              completeExecutionWithHistory("Welcome to E-CLI!\n\nNo AI provider configured yet.\n\nQuick Setup:\n• Type /setup to choose and configure an AI provider\n• Available options: Claude Code, Gemini CLI, or OpenAI Codex\n• After setup, you can use: \"your question here\"\n\nNeed help? Type /help for more information");
             }
             resetInput();
             return;

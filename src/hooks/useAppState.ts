@@ -112,9 +112,17 @@ export const useAppState = () => {
   };
 
   const addAssistantMessage = (content: string, service?: 'claude' | 'gemini' | 'codex') => {
+    // Detect system messages based on content patterns
+    const isSystemMessage = content.includes('configured successfully') || 
+                            content.includes('logged out from all services') ||
+                            content.includes('model set to:') ||
+                            content.includes('Please enter a valid API key') ||
+                            content.includes('No AI provider configured yet') ||
+                            content.startsWith('Usage:');
+    
     const message: ConversationMessage = {
       id: Date.now().toString(),
-      type: 'assistant',
+      type: isSystemMessage ? 'system' : 'assistant',
       content,
       service,
       timestamp: new Date()
