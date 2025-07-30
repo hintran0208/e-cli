@@ -1,73 +1,44 @@
 {
-  "name": "e-cli",
-  "description": "A new CLI generated with oclif",
-  "version": "0.0.0",
-  "author": "Loc Pham",
+  "name": "ecli",
+  "version": "1.0.0",
+  "description": "E-CLI - An AI CLI wrapper with unified access to Claude Code and Gemini CLI",
+  "type": "module",
+  "main": "dist/index.js",
   "bin": {
-    "e-cli": "./bin/run.js"
+    "ecli": "./dist/index.js"
   },
-  "bugs": "https://github.com/AI_30Days/e-cli/issues",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.tsx",
+    "start": "node dist/index.js",
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "claude",
+    "gemini",
+    "ink"
+  ],
+  "author": "Loc Pham",
+  "license": "MIT",
   "dependencies": {
-    "@oclif/core": "^4",
-    "@oclif/plugin-help": "^6",
-    "@oclif/plugin-plugins": "^5"
+    "@anthropic-ai/claude-code": "^1.0.59",
+    "@google/gemini-cli": "^0.1.13",
+    "@openai/codex": "^0.10.0",
+    "gradient-string": "^2.0.2",
+    "ink": "^5.0.1",
+    "node-pty": "^1.0.0",
+    "react": "^18.3.1"
   },
   "devDependencies": {
-    "@eslint/compat": "^1",
-    "@oclif/prettier-config": "^0.2.1",
-    "@oclif/test": "^4",
-    "@types/chai": "^4",
-    "@types/mocha": "^10",
-    "@types/node": "^18",
-    "chai": "^4",
-    "eslint": "^9",
-    "eslint-config-oclif": "^6",
-    "eslint-config-prettier": "^10",
-    "mocha": "^10",
-    "oclif": "^4",
-    "shx": "^0.3.3",
-    "ts-node": "^10",
-    "typescript": "^5"
+    "@types/gradient-string": "^1.1.6",
+    "@types/node": "^22.9.3",
+    "@types/react": "^18.3.12",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
   },
   "engines": {
-    "node": ">=18.0.0"
-  },
-  "files": [
-    "./bin",
-    "./dist",
-    "./oclif.manifest.json"
-  ],
-  "homepage": "https://github.com/AI_30Days/e-cli",
-  "keywords": [
-    "oclif"
-  ],
-  "license": "MIT",
-  "main": "dist/index.js",
-  
-  "oclif": {
-    "bin": "e-cli",
-    "dirname": "e-cli",
-    "commands": "./dist/commands",
-    "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
-    ],
-    "topicSeparator": " ",
-    "topics": {
-      "hello": {
-        "description": "Say hello to the world and others"
-      }
-    }
-  },
-  "repository": "AI_30Days/e-cli",
-  "scripts": {
-    "build": "shx rm -rf dist && tsc -b",
-    "lint": "eslint",
-    "postpack": "shx rm -f oclif.manifest.json",
-    "posttest": "npm run lint",
-    "prepack": "oclif manifest && oclif readme",
-    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
-    "version": "oclif readme && git add README.md"
-  },
-  "types": "dist/index.d.ts"
+    "node": ">=18"
+  }
 }
